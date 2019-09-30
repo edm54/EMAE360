@@ -52,6 +52,24 @@ end
 %%
 
 %45 of heywood: 
+N = 9000
+mean_piston_speed = 2 * stroke/100 * N/60
+R = 3.5 
+i = 1
+for theta = -180:1:180
+    % Heywood 44
+    piston_speed(i) = mean_piston_speed * (pi/2) * sin(theta*pi/180)*(1+ ((cos(theta*pi/180))/sqrt(R^2 - (sin(theta*pi/180))^2)))
+    i = i + 1;
+end
+figure
+% TEmp asa fun of angle
+plot(0:1:360, piston_speed)
+xlim([0,360])
+xlabel('Crank Angle (Degrees)')
+ylabel('Instantaneous Piston Velocity (m/s)')
+title('Instantaneous Piston Velocity vs Crank Angle')
+
+figure
 
 
 %%
@@ -73,7 +91,7 @@ ht = text(110, v(1), st);
 st = strcat('Maximum volume =  ' , num2str(v(181)), ' cc')
 ht = text(110, v(181)+10, st);
 
-mean_piston_speed = 2 * stroke/100 * 7000/60
+
 
 
 
