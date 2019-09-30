@@ -111,10 +111,13 @@ figure
 plot(1500: 25:7500, P_total);
 xlabel('RPM')
 ylabel('Total power, Watts')
-
+title('Power as a function of RPM')
 
 figure 
-
+plot(1500: 25:7500, P_specific);
+xlabel('RPM')
+ylabel('Specific power, Watts/M^2')
+title('Specific power as a function of RPM')
 
 
 figure 
