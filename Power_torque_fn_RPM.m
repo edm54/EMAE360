@@ -58,13 +58,13 @@ Mf = Ma/f;
 Qin = Mf * Qlhv;
 S = 2000; %cM/sec
 N = RPM/60; %rev/sec
-stroke = S/(2 * N) %cM
+stroke = S/(2 * N); %cM
 displacement = D_cc/6;
-bore = sqrt(4 * displacement /(pi*stroke))
+bore = sqrt(4 * displacement /(pi*stroke));
 
 
-stroke = .0641
-bore = 1.1* stroke 
+stroke = .0641;
+bore = 1.1* stroke; 
 
 Vd = ((pi*bore^2*stroke)/4); %meter cubes
 V1  = Vd/(1-(1/rc));
@@ -88,9 +88,9 @@ for N = 1500:25:7500
     c = 6; % number of cylinders
 
    
-    Ubar = 2*(stroke) * N/;
+    Ubar = 2*(stroke) * N
 
-    A = pi * bore * stroke/100
+    A = pi * bore * stroke/100;
 
     m = .17; % mm
     m = .07/1000; %m
@@ -166,14 +166,3 @@ o_eff = 1-(T(4)-T(1))./(T(3)-T(2));
 %st = strcat('Displacement =  ' , num2str(.00150 + .00005*(i-1)), ' cc')
 %ht = text(SFC_Converted(1, i ),9.3, st);
 %set(ht, 'Rotation', 85)  
-
-
-
-
-
-
-
-
-
-
-
