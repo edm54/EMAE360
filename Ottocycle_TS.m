@@ -5,15 +5,12 @@
 
 clear all
 i = 1 
-rc = 10
+rc = 10 % Compression Ratio
 % Initial Conditions
 p(1) = 101325;%pa
-%p(1,i) = p(1)*1000; %pa
-%T(1,i) = 288; %k
 T(1) = 294; %k
 gamma = 1.4;
 R = 287; %j/kg, gas constant
-%rc = 9; % compression ration
 Qlhv = 42.7e6; %j/kg
 Cp = R*gamma/(gamma-1); 
 f = 14.7; % air to fuel ratio
@@ -40,8 +37,7 @@ T(4) = p(4)/(rho(4) * R);
 j = 1;
 
 % Work
-%m^3
-C = 6; % initial guess
+C = 6; 
 Cv = Cp-R;
 Ws = Cv*((T(3)-T(2)) - (T(4)-T(1)));
 Ma = (D/C)*(rc/(rc-1)) * rho(1);
@@ -56,14 +52,15 @@ P_specific = Ws * N/120;
 P_cylinder = P_specific * Ma;
 P_total = P_cylinder * C;
 P_hp = P_total/745.699872;
+
 % SFC
 SFC = (C * Ma/f)/Wt; %kg/kj
 SFC_Converted = SFC * 3.6e9; %g/Kw-hr
 
- S(1)= refpropm('S','D',rho(1), 'P',p(1)/1e3, 'air.ppf');
- S(2)= refpropm('S','D',rho(2), 'P',p(2)/1e3, 'air.ppf');
- S(3)= refpropm('S','T',3000, 'P',p(3)/1e3, 'air.ppf');
- S(4)= refpropm('S','D',rho(4), 'P',p(4)/1e3, 'air.ppf');
+S(1)= refpropm('S','D',rho(1), 'P',p(1)/1e3, 'air.ppf');
+S(2)= refpropm('S','D',rho(2), 'P',p(2)/1e3, 'air.ppf');
+S(3)= refpropm('S','T',3000, 'P',p(3)/1e3, 'air.ppf');
+S(4)= refpropm('S','D',rho(4), 'P',p(4)/1e3, 'air.ppf');
 
 
 %%
@@ -107,6 +104,7 @@ H(4)= refpropm('H','D',rho(4), 'P',p(4)/1e3, 'air.ppf')
 
 p_m = p/1e6
 T(3) = T(2) + .8*Qlhv/(Cp* f);
+
 scatter(S,T, 'MarkerEdgeColor','red')
 hold on
 scatter(S_n,T_n,'MarkerEdgeColor','red')
