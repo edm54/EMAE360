@@ -71,14 +71,13 @@ i = 1
 %% Mechanical eff
 
 stroke = stroke / 100
+RPM = [2100 9000]
+mech_eff = [ .9 .75]
+
 for N = 1500:25:7500
     c = 6 % number of cylinders
-
-   
     Ubar = 2*(stroke) * N/60
-
     A = pi * bore * stroke/100
-
     m = .17 % mm
     m = .07/1000 %m
 
@@ -92,21 +91,28 @@ for N = 1500:25:7500
 
     Pf(i) = 1.5 * c * Ubar * f
     
+
+    if N<= 2100
+        mechanical_eff = .9
+    else
+        mechanical_eff = interp1(RPM, mech_eff, N, 'linear')
+    end
     Power(i) = Wt * N/120;
     P_rate(i) = .8 * Power(i); 
-    P_specific(i) = Ws * N/120;
+    P_specific(i) = mechanical_eff* Ws * N/120;
     P_cylinder(i) = P_specific(i) * Ma;
     P_total(i) = P_cylinder(i) * C;
     %p_real(i) = ((P_total(i) - Pf(i))/(P_total(i))) * P_total(i)
-    p_real(i) = (P_total(i) - Pf(i))
+    
     P_hp(i) = P_total(i)/745.699872;
     % SFC
     SFC(i) = (C * Ma/f)/(Wt); %kg/kj
     SFC_Converted(i) = SFC(i) * 3.6e9; %g/Kw-hr
     Torque(i) = 9548.8 * P_total(i)/N;
-    T_real(i) = 9548.8 * p_real(i)/N;
+    
     i = i + 1;
 end
+
 figure 
 plot(1500: 25:7500, P_total);
 xlabel('RPM')
@@ -121,7 +127,7 @@ title('Specific power as a function of RPM')
 
 
 figure 
-plot(1500: 25:7500, T_real);
+plot(1500: 25:7500, Torque);
 xlabel('RPM')
 ylabel('Torque, NM')
 
