@@ -1,4 +1,8 @@
 %%
+% This function plots the TS curve of an ideal Ottocycle
+% This function relies on the NIST program, Refprop
+% Eric Miller, edm54
+
 clear all
 i = 1 
 rc = 10
