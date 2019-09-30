@@ -34,8 +34,10 @@ crank_rad = stroke/2 %cm
 % C rad/length ~ = 1/3
 crank_l = 3.5 * crank_rad %cm
 
+rc = 10
+
 % Vc = Vtotal / (rc -1)
-Vc = (1500/6)/9
+Vc = (1500/6)/(rc -1)
 
 i = 1
 for theta = -180:1:180
