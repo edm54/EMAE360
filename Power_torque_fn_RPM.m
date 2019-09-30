@@ -70,11 +70,11 @@ N = 5000; % RPM, Max
 i = 1
 %% Mechanical eff
 
-stroke = stroke / 100
-RPM = [2100 9000]
-mech_eff = [ .9 .75]
+stroke = stroke / 100;
+RPM = [2100 9000];
+mech_eff = [ .9 .75];
 
-for N = 1500:25:7500
+for N = 1500:25:8500
     c = 6 % number of cylinders
     Ubar = 2*(stroke) * N/60
     A = pi * bore * stroke/100
@@ -114,25 +114,25 @@ for N = 1500:25:7500
 end
 
 figure 
-plot(1500: 25:7500, P_total);
+plot(1500: 25:8500, P_total);
 xlabel('RPM')
 ylabel('Total power, Watts')
 title('Power as a function of RPM')
 
 figure 
-plot(1500: 25:7500, P_specific);
+plot(1500: 25:8500, P_specific);
 xlabel('RPM')
 ylabel('Specific power, Watts/M^2')
 title('Specific power as a function of RPM')
 
 
 figure 
-plot(1500: 25:7500, Torque);
+plot(1500: 25:8500, Torque);
 xlabel('RPM')
 ylabel('Torque, NM')
 
 figure 
-plot(1500: 25:7500, Pf);
+plot(1500: 25:8500, Pf);
 xlabel('RPM')
 ylabel('Friction loss')
 title('Friction loss vs. RPM')
