@@ -1,32 +1,39 @@
 %%
 clear all
 close all
-i = 1 
+i = 1; 
 
-rc = 10
+rc = 10;
     
 % Initial Conditions
 p(1) = 101325;%pa
-%p(1,i) = p(1)*1000; %pa
 T(1) = 294; %k
-%(1,i) = 300; %k
 gamma = 1.4;
-R = 287; %j/kg, gas constant
-%rc = 9; % compression ration
+R = 287; %j/kg*K, gas constant
+Cp = R*gamma/(gamma-1); %J/kg*K
+Cv = Cp-R;
+
+%Engine Parameters
 Qlhv = 42.7e6; %j/kg
-Cp = R*gamma/(gamma-1); 
 f = 14.7; % air to fuel ratio
+C = 6; % number of cylinders
 
-% State 1
-rho(1) = p(1)/(R*T(1)); 
+% State 1, 
+rho(1) = p(1)/(R*T(1)); %from ideal gas law
 
-% State 2
+% State 2, path 2-3: isentropic compression
 rho(2) = rho(1) * rc;
 p(2) = p(1)* (rho(2)/rho(1))^gamma;
 T(2) = p(2)/(rho(2)* R);
 
-% State 3
-T(3) = T(2) + .8*Qlhv/(Cp* f); %.8 is thermal efficeny of combustionn
+% State 3, path 2-3: constant volume heat addition
+
+% combustive efficiency, from Heywood p 82
+if f <= 14.7
+    nc = 0.95;
+end
+
+T(3) = T(2) + nc*Qlhv/(Cp* f); 
 rho(3) = rho(2);
 p(3) = rho(3) * R* T(3);
 
@@ -35,19 +42,17 @@ rho(4) = rho(1);
 p(4) = p(3)* (rho(4)/rho(3))^ (gamma); %this is an estimate, could use refprop to find actual
 T(4) = p(4)/(rho(4) * R);
 j = 1;
-D = .0015
+D = .0015; %Total Displacement, m^3
 % Work
-%m^3
-C = 6; % initial guess
-Cv = Cp-R;
-Ws = Cv*((T(3)-T(2)) - (T(4)-T(1)));
-Ma = (D/C)*(rc/(rc-1)) * rho(1);
-Wc = Ws*Ma;
-Wt = Wc * C; %total work
+
+Ws = Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
+Ma = (D/C)*(rc/(rc-1)) * rho(1); %Mass of Air in each cylinder, kg
+Wc = Ws*Ma; %Work per Cylinder, J
+Wt = Wc * C; %total work, J
 
 
-RPM = 5000
-D_cc = 1500
+RPM = 5000;
+D_cc = 1500;
 
 Mf = Ma/f;
 Qin = Mf * Qlhv;
@@ -61,33 +66,45 @@ bore = sqrt(4 * displacement /(pi*stroke))
 stroke = .0641
 bore = 1.1* stroke 
 
-Vd = ((pi*bore^2*stroke)/4) %meter cubes
-V1  = Vd/(1-(1/rc))
-Q = Qin /(p(1)*V1)
+Vd = ((pi*bore^2*stroke)/4); %meter cubes
+V1  = Vd/(1-(1/rc));
+Q = Qin /(p(1)*V1);
 
 %Power
 N = 5000; % RPM, Max
 i = 1
 %% Mechanical eff
 
-stroke = stroke / 100
-RPM = [2100 9000]
-mech_eff = [ .9 .75]
+%maximum rpm
+Nmax = 7000;
 
+%mechanical efficiency assuming linear variation between Nmax and N = 2100
+%rpm
+nm = 0.9 + (0.75-0.9)/(Nmax-2100)*(N-2100);
+
+
+stroke = stroke / 100;
 for N = 1500:25:7500
-    c = 6 % number of cylinders
-    Ubar = 2*(stroke) * N/60
+    c = 6; % number of cylinders
+
+   
+    Ubar = 2*(stroke) * N/;
+
     A = pi * bore * stroke/100
-    m = .17 % mm
-    m = .07/1000 %m
+
+    m = .17; % mm
+    m = .07/1000; %m
+    stroke = stroke / 100
+    RPM = [2100 9000]
+    mech_eff = [ .9 .75]
 
     %u = (8.34* 10^-5) * e^(1474/(temp - 368)
-    u = 1.44E-4
+    u = 1.44E-4;
     %https://wiki.anton-paar.com/en/engine-oil/
-    u = .0119
+    u = .0119;
 
-    t = u * (Ubar / m)
-    f = A * t 
+    t = u * (Ubar / m);
+    f = A * t;
 
     Pf(i) = 1.5 * c * Ubar * f
     
