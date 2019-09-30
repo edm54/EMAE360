@@ -1,4 +1,7 @@
 %%
+% This program calculates the airflow and fuel flow rates as a function of
+% RPM based on an ideal ottocycle
+
 clear all
 i = 1 
 figure
@@ -52,23 +55,14 @@ P_specific(i, j) = Ws(i, j) * N/120;
 P_cylinder(i, j) = P_specific(i, j) * Ma(i, j);
 P_total(i, j) = P_cylinder(i, j) * C;
 P_hp(i, j) = P_total(i, j)/745.699872;
+
 % SFC
 SFC(i, j) = (C * Ma(i, j)/f)/(Wt(i, j)); %kg/kj
 SFC_Converted(i, j) = SFC(i,j) * 3.6e9; %g/Kw-hr
 
-%S(1, i)= refpropm('S','D',rho(1,i), 'P',p(1, i)/1e3, 'air.ppf');
-%S(2, i)= refpropm('S','D',rho(2, i), 'P',p(2, i)/1e3, 'air.ppf');
-%S(3, i)= refpropm('S','D',rho(3, i), 'P',p(3, i)/1e3, 'air.ppf');
-%S(4, i)= refpropm('S','D',rho(4, i), 'P',p(4, i)/1e3, 'air.ppf');
-
-
-%plot(P_hp(i,:),.0015 : .000050 : .0018 )
 otto_eff(i) = 1-(1/rc^(gamma-1))
 o_eff(i) = 1-(T(4,i)-T(1,i))./(T(3,i)-T(2,i))
-i = i + 1; 
-%st = strcat('Displacement =  ' , num2str(.00150 + .00005*(i-1)), ' cc')
-%ht = text(SFC_Converted(1, i ),9.3, st);
-%set(ht, 'Rotation', 85)  
+
 %%
 figure
 C = 6
