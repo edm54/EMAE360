@@ -48,7 +48,6 @@ for theta = -180:1:180
     i = i + 1;
 end
 
-% % % % % % r= 
 % for loop for engine1 and engine2
 for j=1:2
 theta = -180;          %initial crankangle
@@ -78,7 +77,6 @@ fy(2) =0.;        % reset work vector
     
   end %end of pressure and work iteration loop
 end %end of engine iteration loop
-
 
 [pmax1, id_max1] = max(save.press(:,1)); %Engine 1 max pressure
 [pmax2, id_max2] = max(save.press(:,2)); %Engine 2 max pressure
@@ -129,7 +127,6 @@ ylabel('Work','fontsize', 18)
 title('Work as a Function of Crank Angle')
 grid
 
-
 figure();
 %subplot(1,2,2);
 plot(save.theta,save.temp(:,1),'-', 'linewidth',2)
@@ -140,7 +137,6 @@ xlabel('Theta (deg)','fontsize', 18)
 ylabel('Temp','fontsize', 18)
 title('Temperature (with changing gamma) as a Function of Crank Angle')
 grid
-
 
 figure();
 %subplot(1,2,2);
@@ -163,12 +159,6 @@ xlabel('Theta (deg)','fontsize', 18)
 ylabel('Temp','fontsize', 18)
 title('Gamma as a Function of Crank Angle')
 grid
-
-
-
-
-
-
 
 
 function[fy,vol] = integrate(theta,thetae,fy)
@@ -203,7 +193,6 @@ function [gamma] =  calc_gamma(temp)
     O2_high = [.362e1, .7362e-3, -.1965e-6, .362e-10, -.2895e-14];
     O2_low = [.36256e1, -.18782e-2, .70555e-5, -.6764e-8, .21556e-11];
 
-
     if (temp>1000)
         N = N2_high;
         O = O2_high;
@@ -215,7 +204,6 @@ function [gamma] =  calc_gamma(temp)
     cp_n = temp_to_gamma(N, temp);
     cp_o = temp_to_gamma(O,temp);
     
-    
     cp = .2095 * cp_o + .7905 * cp_n;
     R = .287;
     cp = cp*R;
@@ -224,8 +212,6 @@ function [gamma] =  calc_gamma(temp)
         cp =  a(1) + a(2)*temp + a(3)*temp^2 + a(4)*temp^3 + a(5) * temp^4;
     end
     gamma = cp/cv;
-
-
 
 end
 end % heat_release_weibe2
