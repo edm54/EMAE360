@@ -123,6 +123,8 @@ for N = 1500:25:7500
     P_specific(i) = mechanical_eff* Ws * N/120;
     P_cylinder(i) = P_specific(i) * Ma;
     P_total(i) = P_cylinder(i) * C;
+    imep(i) = P_total(i)/1000*2*10^3/(D*1000*(N/60));
+    bmep(i) = mechanical_eff*imep(i);
     %p_real(i) = ((P_total(i) - Pf(i))/(P_total(i))) * P_total(i)
     
     P_hp(i) = P_total(i)/745.699872;
@@ -135,25 +137,25 @@ for N = 1500:25:7500
 end
 
 figure 
-plot(1500: 25:8500, P_total);
+plot(1500:25:7500, P_total);
 xlabel('RPM')
 ylabel('Total power, Watts')
 title('Power as a function of RPM')
 
 figure 
-plot(1500: 25:8500, P_specific);
+plot(1500: 25:7500, P_specific);
 xlabel('RPM')
 ylabel('Specific power, Watts/M^2')
 title('Specific power as a function of RPM')
 
 
 figure 
-plot(1500: 25:8500, Torque);
+plot(1500: 25:7500, Torque);
 xlabel('RPM')
 ylabel('Torque, NM')
 
 figure 
-plot(1500: 25:8500, Pf);
+plot(1500: 25:7500, Pf);
 xlabel('RPM')
 ylabel('Friction loss')
 title('Friction loss vs. RPM')
@@ -162,6 +164,11 @@ title('Friction loss vs. RPM')
 %S(3, i)= refpropm('S','D',rho(3, i), 'P',p(3, i)/1e3, 'air.ppf');
 %S(4, i)= refpropm('S','D',rho(4, i), 'P',p(4, i)/1e3, 'air.ppf');
 
+figure
+plot(1500:25:7500, bmep)
+xlabel('RPM')
+ylabel('bmep (kPa)')
+title('bmep vs RPM')
 
 %plot(P_hp(i,:),.0015 : .000050 : .0018 )
 otto_eff = 1-(1/rc^(gamma-1));

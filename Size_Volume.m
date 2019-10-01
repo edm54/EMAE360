@@ -7,26 +7,26 @@ clear all
 clc
 close all
 
-total_displacement = 1500
+total_displacement = 1500; %cc
 %for total_d = 1500: 25: 1800
-S = 1500 %cM/sec
+S = 1500; %cM/sec
 N = 5000/60; %rev/sec
 
 % Heywood 44
-stroke = S/(2 * N) %cM
+stroke = S/(2 * N); %cM
 
-displacement = total_displacement / 6 %cubic centimeters
+displacement = total_displacement / 6; %cubic centimeters
 
 % Heywood p 51, d = b^2* pi * L/4
 bore = sqrt(4 * displacement /(pi*stroke)) %cm
 R_bs = bore/stroke %Unitless bore stroke ratio 
 
 % orrr
-bs_ratio = 1.1
-stroke = (sqrt(4*displacement)/(sqrt(pi)*bs_ratio))^(2/3)
-mean_p_speed = stroke * 2 * 5000/60
-max_p_speed = stroke * 2 * 9400/60
-bore = sqrt(4 * displacement /(pi*stroke))
+bs_ratio = 1.1;
+stroke = (sqrt(4*displacement)/(sqrt(pi)*bs_ratio))^(2/3);
+mean_p_speed = stroke * 2 * 5000/60;
+max_p_speed = stroke * 2 * 9400/60;
+bore = sqrt(4 * displacement /(pi*stroke));
 
 %%
 % Heywood p 43
