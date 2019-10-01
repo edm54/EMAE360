@@ -49,6 +49,7 @@ Ws = Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
 Ma = (D/C)*(rc/(rc-1)) * rho(1); %Mass of Air in each cylinder, kg
 Wc = Ws*Ma; %Work per Cylinder, J
 Wt = Wc * C; %total work, J
+nv = Ma*C/(rho(1)*D);
 
 
 RPM = 5000;
@@ -75,6 +76,9 @@ N = 5000; % RPM, Max
 i = 1
 %% Mechanical eff
 
+stroke = stroke / 100;
+RPM = [2100 9000];
+mech_eff = [ .9 .75];
 %maximum rpm
 Nmax = 7000;
 
@@ -88,7 +92,7 @@ for N = 1500:25:7500
     c = 6; % number of cylinders
 
    
-    Ubar = 2*(stroke) * N
+    Ubar = 2*(stroke) * N/60;
 
     A = pi * bore * stroke/100;
 
@@ -131,25 +135,25 @@ for N = 1500:25:7500
 end
 
 figure 
-plot(1500: 25:7500, P_total);
+plot(1500: 25:8500, P_total);
 xlabel('RPM')
 ylabel('Total power, Watts')
 title('Power as a function of RPM')
 
 figure 
-plot(1500: 25:7500, P_specific);
+plot(1500: 25:8500, P_specific);
 xlabel('RPM')
 ylabel('Specific power, Watts/M^2')
 title('Specific power as a function of RPM')
 
 
 figure 
-plot(1500: 25:7500, Torque);
+plot(1500: 25:8500, Torque);
 xlabel('RPM')
 ylabel('Torque, NM')
 
 figure 
-plot(1500: 25:7500, Pf);
+plot(1500: 25:8500, Pf);
 xlabel('RPM')
 ylabel('Friction loss')
 title('Friction loss vs. RPM')
