@@ -1,8 +1,8 @@
 % Four stroke Otto cycle model
 % input parameters
-Ti = 300; % inlet temperature, K
-Pi = 50; % inlet pressure, kPa, 50
-Pe = 100; % exhaust pressure, kPa
+Ti = 294; % inlet temperature, K
+Pi = 101; % inlet pressure, kPa, 50
+Pe = 101; % exhaust pressure, kPa
 r = 10; % compression ratio, 10
 qin = 2500; % heat input, kJ/kg (mixture)
 gamma = 1.3; % ideal gas specific heat ratio
@@ -40,7 +40,7 @@ end
 
 %cycle parameters
 eta= 1 - 1/r^(gamma-1);
-imep = P1*(qin*(1-f)/(R*T1))/(1-(1/r))*eta;
+imep = P1*(qin*(1-f)/(R*T1))/(1-(1/r))*eta
 pmep=Pe-Pi;
 etanet= eta*(1-pmep/imep);
 imepnet= (imep-pmep)/100.;

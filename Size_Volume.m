@@ -67,6 +67,8 @@ plot(0:1:360, piston_speed)
 xlim([0,360])
 xlabel('Crank Angle (Degrees)')
 ylabel('Instantaneous Piston Velocity (m/s)')
+grid
+
 title('Instantaneous Piston Velocity vs Crank Angle')
 
 figure

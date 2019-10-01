@@ -114,6 +114,7 @@ legend('Engine 1','Location','NorthWest')
 xlabel('Theta (deg)','fontsize', 18)
 ylabel('Pressure (bar)','fontsize', 18)
 title('Pressure (with changing gamma) as a Function of Crank Angle')
+grid
 print -deps2 heatrelpressure
 
 figure();
