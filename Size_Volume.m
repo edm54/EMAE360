@@ -71,14 +71,12 @@ title('Instantaneous Piston Velocity vs Crank Angle')
 
 figure
 
-
 %%
 plot(R_bs, total_displacement : 25 : 1800)
 xlabel('Bore-Stroke Ratio')
 ylabel('Displacement (cc)')
 title('Bore Stroke Ratio as a Function of Displacement')
 figure
-
  
 % TEmp asa fun of angle
 plot(0:1:360, v)
@@ -90,8 +88,3 @@ st = strcat('Minimum volume =  ' , num2str(v(1)), ' cc')
 ht = text(110, v(1), st);
 st = strcat('Maximum volume =  ' , num2str(v(181)), ' cc')
 ht = text(110, v(181)+10, st);
-
-
-
-
-
