@@ -2,7 +2,6 @@
 clear all
 close all
 i = 1; 
-
 rc = 10;
     
 % Initial Conditions
@@ -51,7 +50,6 @@ Wc = Ws*Ma; %Work per Cylinder, J
 Wt = Wc * C; %total work, J
 nv = Ma*C/(rho(1)*D);
 
-
 RPM = 5000;
 D_cc = 1500;
 
@@ -62,7 +60,6 @@ N = RPM/60; %rev/sec
 stroke = S/(2 * N); %cM
 displacement = D_cc/6;
 bore = sqrt(4 * displacement /(pi*stroke));
-
 
 stroke = .0641;
 bore = 1.1* stroke; 
@@ -86,11 +83,9 @@ Nmax = 7000;
 %rpm
 nm = 0.9 + (0.75-0.9)/(Nmax-2100)*(N-2100);
 
-
 stroke = stroke / 100;
 for N = 1500:25:7500
-    c = 6; % number of cylinders
-
+    c = 6; % number of cylinder
    
     Ubar = 2*(stroke) * N/60;
 
@@ -112,7 +107,6 @@ for N = 1500:25:7500
 
     Pf(i) = 1.5 * c * Ubar * f
     
-
     if N<= 2100
         mechanical_eff = .9
     else
