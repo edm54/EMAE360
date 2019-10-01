@@ -1,8 +1,12 @@
 %%
+% This program calculates bore, stroke based on a given ratio
+% Also calculates crank radius and length 
+% Calculates volume as a function of time
+
 clear all
 clc
 close all
-i = 1
+
 total_displacement = 1500
 %for total_d = 1500: 25: 1800
 S = 1500 %cM/sec
@@ -30,8 +34,10 @@ crank_rad = stroke/2 %cm
 % C rad/length ~ = 1/3
 crank_l = 3.5 * crank_rad %cm
 
+rc = 10
+
 % Vc = Vtotal / (rc -1)
-Vc = (1500/6)/9
+Vc = (1500/6)/(rc -1)
 
 i = 1
 for theta = -180:1:180
@@ -46,6 +52,24 @@ end
 %%
 
 %45 of heywood: 
+N = 9000
+mean_piston_speed = 2 * stroke/100 * N/60
+R = 3.5 
+i = 1
+for theta = -180:1:180
+    % Heywood 44
+    piston_speed(i) = mean_piston_speed * (pi/2) * sin(theta*pi/180)*(1+ ((cos(theta*pi/180))/sqrt(R^2 - (sin(theta*pi/180))^2)))
+    i = i + 1;
+end
+figure
+% TEmp asa fun of angle
+plot(0:1:360, piston_speed)
+xlim([0,360])
+xlabel('Crank Angle (Degrees)')
+ylabel('Instantaneous Piston Velocity (m/s)')
+title('Instantaneous Piston Velocity vs Crank Angle')
+
+figure
 
 
 %%
@@ -66,36 +90,8 @@ st = strcat('Minimum volume =  ' , num2str(v(1)), ' cc')
 ht = text(110, v(1), st);
 st = strcat('Maximum volume =  ' , num2str(v(181)), ' cc')
 ht = text(110, v(181)+10, st);
-%line([0, 360],[v(1), v(1)])
 
-mean_piston_speed = 2 * stroke/100 * 7000/60
 
-%% Mechanical eff
-c = 6 % number of cylinders
-N  = 7000
-stroke = stroke / 100
 
-% Mean piston speed
-Ubar = 2*(stroke) * N/60
-
-A = pi * bore * stroke/100
-
-% clearance
-m = .17 % mm
-m = .17/1000 %m
-
-% Dynamic viscosity of oil
-%u = (8.34* 10^-5) * e^(1474/(temp - 368)
-u = 1.44E-4
-%https://wiki.anton-paar.com/en/engine-oil/
-u = .0119
-
-% Tau, shear
-t = u * (Ubar / m)
-
-% Friction force
-f = A * t 
-
-Pf = 1.5 * c * Ubar * f
 
 
