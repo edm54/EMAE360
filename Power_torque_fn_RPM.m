@@ -13,9 +13,11 @@ Cp = R*gamma/(gamma-1); %J/kg*K
 Cv = Cp-R;
 
 %Engine Parameters
-Qlhv = 42.7e6; %j/kg
-f = 14.7; % air to fuel ratio
+Qlhv = 44e6; %j/kg
+f = 14.7; % air to fuel mass ratio
 C = 6; % number of cylinders
+D = .0016; %Total Displacement, m^3
+nt = 0.5; %Indicated Thermal Efficiency
 
 % State 1, 
 rho(1) = p(1)/(R*T(1)); %from ideal gas law
@@ -32,19 +34,21 @@ if f <= 14.7
     nc = 0.95;
 end
 
-T(3) = T(2) + nc*Qlhv/(Cp* f); 
+
+%T(3) = T(2) + nc*Qlhv/(Cp* f); 
+T(3) = 3071.; %K, from CEA
 rho(3) = rho(2);
 p(3) = rho(3) * R* T(3);
+
 
 % State 4
 rho(4) = rho(1);
 p(4) = p(3)* (rho(4)/rho(3))^ (gamma); %this is an estimate, could use refprop to find actual
 T(4) = p(4)/(rho(4) * R);
 j = 1;
-D = .0015; %Total Displacement, m^3
 % Work
 
-Ws = Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
+Ws = nt*Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
 Ma = (D/C)*(rc/(rc-1)) * rho(1); %Mass of Air in each cylinder, kg
 Wc = Ws*Ma; %Work per Cylinder, J
 Wt = Wc * C; %total work, J
@@ -70,7 +74,7 @@ Q = Qin /(p(1)*V1);
 
 %Power
 N = 5000; % RPM, Max
-i = 1
+i = 1;
 %% Mechanical eff
 
 stroke = stroke / 100;
@@ -78,10 +82,6 @@ RPM = [2100 9000];
 mech_eff = [ .9 .75];
 %maximum rpm
 Nmax = 7000;
-
-%mechanical efficiency assuming linear variation between Nmax and N = 2100
-%rpm
-nm = 0.9 + (0.75-0.9)/(Nmax-2100)*(N-2100);
 
 stroke = stroke / 100;
 for N = 1500:25:7500
@@ -157,6 +157,11 @@ title('Friction loss vs. RPM')
 %S(2, i)= refpropm('S','D',rho(2, i), 'P',p(2, i)/1e3, 'air.ppf');
 %S(3, i)= refpropm('S','D',rho(3, i), 'P',p(3, i)/1e3, 'air.ppf');
 %S(4, i)= refpropm('S','D',rho(4, i), 'P',p(4, i)/1e3, 'air.ppf');
+
+figure
+plot(1500:25:7500, P_hp)
+xlabel('RPM')
+ylabel('Power (hp)')
 
 figure
 plot(1500:25:7500, bmep)
