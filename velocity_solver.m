@@ -1,8 +1,8 @@
 %Power Required at a certain Speed
 clear
-Cr = 0.4;
-Cd = 0.46;
-M = 181.44; %kg
+Cr = 0.015;
+Cd = 0.4;
+M = 300; %kg
 g = 9.81; %m/s^2
 A = 1; % m^2
 p = 1.23; %kg/m^3
@@ -10,12 +10,15 @@ iter = 1;
 
 F = Cr*M*g;
 Q = 0.5*p*Cd*A;
-v2 = 31.9; %initial guess, m/s
+vmph = 70; %mph, initial guess
+v2 = .44704*vmph; % m/s
 v_conv = 1;
+Pa = 116000/745.1; %hp
 
 while v_conv >0.001
 vi = v2;
-Pi = (F+Q*vi^2)*vi - 116000;
+Preq = (F+Q*vi^2)*vi/745.1; %hp
+Pi = Preq - Pa;
 P_prime = F+3*Q*(vi^2);
 
 v2 = vi - Pi/P_prime;

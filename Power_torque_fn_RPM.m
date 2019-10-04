@@ -13,11 +13,11 @@ Cp = R*gamma/(gamma-1); %J/kg*K
 Cv = Cp-R;
 
 %Engine Parameters
-Qlhv = 44e6; %j/kg
+Qlhv = 44e6; %j/kg from Heywood App D
 f = 14.7; % air to fuel mass ratio
 C = 6; % number of cylinders
-D = .0016; %Total Displacement, m^3
-nt = 0.5; %Indicated Thermal Efficiency
+D = .0015; %Total Displacement, m^3
+nt = 0.6; %Indicated Thermal Efficiency
 
 % State 1, 
 rho(1) = p(1)/(R*T(1)); %from ideal gas law
