@@ -93,9 +93,9 @@ for N = 1500:25:7500
 
     m = .17; % mm
     m = .07/1000; %m
-    stroke = stroke / 100
-    RPM = [2100 9000]
-    mech_eff = [ .9 .75]
+    stroke = stroke / 100;
+    RPM = [2100 9000];
+    mech_eff = [ .9 .75];
 
     %u = (8.34* 10^-5) * e^(1474/(temp - 368)
     u = 1.44E-4;
@@ -105,12 +105,12 @@ for N = 1500:25:7500
     t = u * (Ubar / m);
     f = A * t;
 
-    Pf(i) = 1.5 * c * Ubar * f
+    Pf(i) = 1.5 * c * Ubar * f;
     
     if N<= 2100
-        mechanical_eff = .9
+        mechanical_eff = .9;
     else
-        mechanical_eff = interp1(RPM, mech_eff, N, 'linear')
+        mechanical_eff = interp1(RPM, mech_eff, N, 'linear');
     end
     Power(i) = Wt * N/120;
     P_rate(i) = .8 * Power(i); 
