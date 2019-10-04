@@ -4,7 +4,7 @@
 % Eric Miller, edm54
 
 clear all
-i = 1 
+i = 1; 
 rc = 10 % Compression Ratio
 % Initial Conditions
 p(1) = 101325;%pa
