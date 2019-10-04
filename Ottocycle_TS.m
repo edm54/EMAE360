@@ -5,16 +5,16 @@
 
 clear all
 i = 1; 
-rc = 10 % Compression Ratio
+rc = 10; % Compression Ratio
 % Initial Conditions
 p(1) = 101325;%pa
 T(1) = 294; %k
 gamma = 1.4;
 R = 287; %j/kg, gas constant
-Qlhv = 42.7e6; %j/kg
+Qlhv = 44e6; %j/kg
 Cp = R*gamma/(gamma-1); 
 f = 14.7; % air to fuel ratio
-D = .0015
+D = .0015;
 
 % State 1
 rho(1) = p(1)/(R*T(1)); 

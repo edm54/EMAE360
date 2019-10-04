@@ -13,7 +13,7 @@ Q = 0.5*p*Cd*A;
 vmph = 70; %mph, initial guess
 v2 = .44704*vmph; % m/s
 v_conv = 1;
-Pa = 116000/745.1; %hp
+Pa = 55; %hp
 
 while v_conv >0.001
 vi = v2;
