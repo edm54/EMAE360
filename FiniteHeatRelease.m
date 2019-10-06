@@ -6,6 +6,8 @@ clear();
 %%
 calc_gamma(300)
 %%
+
+
 thetas(1,1)= -10; % Engine1 start of heat release (deg)
 thetas(2,1)= -10;   % Engine2 start of heat release (deg)
 thetad(1,1) = 40; % Engine1 duration of heat release (deg)
@@ -107,7 +109,7 @@ fprintf(' Imep/P1            %5.2f                \n', imep1);
 
 %set(gcf,'Units','pixels','Position', [50,50,1200,600]);
 %subplot(1,2,1);
-plot(save.theta,save.press(:,1),'linewidth',2 )
+plot(save.theta,save.press(:,1),'linewidth',3 )
 set(gca, 'fontsize', 18,'linewidth',2);
 %grid
 legend('Engine 1','Location','NorthWest')
@@ -152,7 +154,7 @@ grid
 
 figure();
 %subplot(1,2,2);
-plot(save.theta,g,'-', 'linewidth',2)
+plot(save.theta,g,'-', 'linewidth',3)
 set(gca, 'fontsize', 18,'linewidth',2);
 %grid
 %legend('Engine 1', 'Location','NorthWest')

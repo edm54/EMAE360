@@ -7,6 +7,15 @@ clear all
 clc
 close all
 
+set(0, 'DefaultAxesFontWeight', 'normal', ...
+      'DefaultAxesFontSize', 18, ...
+      'DefaultAxesFontAngle', 'normal', ... 
+      'DefaultAxesFontWeight', 'normal', ... 
+      'DefaultAxesTitleFontWeight', 'bold', ...
+      'DefaultAxesTitleFontSizeMultiplier', 1.2) ;
+set(groot,'defaultLineLineWidth',3)
+
+
 total_displacement = 1500; %cc
 %for total_d = 1500: 25: 1800
 S = 1500; %cM/sec
@@ -26,7 +35,7 @@ bs_ratio = 1.1;
 stroke = (sqrt(4*displacement)/(sqrt(pi)*bs_ratio))^(2/3);
 mean_p_speed = stroke * 2 * 5000/60;
 max_p_speed = stroke * 2 * 9400/60;
-bore = sqrt(4 * displacement /(pi*stroke));
+bore = sqrt(4 * displacement /(pi*stroke))
 
 %%
 % Heywood p 43
