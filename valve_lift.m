@@ -211,6 +211,10 @@ for theta = 0:360
     time = (theta/360) * (1/(N/60));
 end
 
+
+T0 = 600  %k
+gamma = calc_gamma(T0)
+
 U = sqrt(2* gamma/(gamma - 1) * (Po/rho0) * (1 - (Pv/Po)^((gamma - 1)/gamma)))
 
 
