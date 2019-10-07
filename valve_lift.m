@@ -215,7 +215,7 @@ for theta = 0:360
 end
 
 %% Exhuast
-N = 5000
+N = 8000
 To = 1.9286e+03 ;%k
 gamma = calc_gamma(To);
 P_external_e = 101325; %pa
@@ -238,24 +238,26 @@ pressure = P_cylinder_e * ones(1,length(theta));
 mass = Ma;
 d_mass_d_time = 0;
 delta_t = time(2) - time(1);
-
+rho = rho_cylinder
 
 for i = 1:length(theta)-1
+    rho(i) = pressure(i)/(R * temp(i));
     lift = exhuast_lift(i);
     min_area = Am_ex(i) ; %meters
     gamma = calc_gamma(temp(i));
     Cd = CD_ex(i);
     if pressure(i) > P_external_e 
-        m_dot(i) = -1*Cd * rho_cylinder * min_area * Co * sqrt((2/(gamma-1)) * ((P_external_e/P_cylinder_e)^(2/gamma) - ...
-        (P_external_e/P_cylinder_e)^((gamma+1)/gamma))) ;
+        %could make rho consrtant i gues?
+        m_dot(i) = -1*Cd * rho(i) * min_area * Co * sqrt((2/(gamma-1)) * ((P_external_e/pressure(i))^(2/gamma) - ...
+        (P_external_e/pressure(i))^((gamma+1)/gamma))) ;
     else
         % Flow into cylinder from exhuast
-        m_dot(i) =   Cd * rho_cylinder * min_area * Co * sqrt((2/(gamma-1)) * ((P_external_e/P_cylinder_e)^(2/gamma) - ...
-        (P_external_e/P_cylinder_e)^((gamma+1)/gamma)));
+        m_dot(i) =   Cd * rho_cylinder * min_area * Co * sqrt((2/(gamma-1)) * ((P_external_e/pressure(i))^(2/gamma) - ...
+        (P_external_e/pressure(i))^((gamma+1)/gamma)));
+        disp('reverse')
     end
     
     % Choked flow?
-    rho(i) = pressure(i)/(R * temp(i));
     velocity(i) = abs(m_dot(i))/(rho(i) * min_area);
     sound_speed(i) = sqrt(gamma * R *  temp(i));
         
@@ -278,7 +280,24 @@ end
 
 %plot( theta(1 :720), rho)
 %plot( theta, mass)
+
+V_eff = 1 - mass(end)/mass(1)
+
 figure
 plot( theta, pressure)
+title('Pressure of cylinder during exhuast as a function of crank angle')
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'P exhuast vs crank.png')
+
 figure
 plot(theta, mass)
+title('Air mass in cylinder during exhuast as a function of crank angle')
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'Air mass exhaust vs crank.png')
+
+figure
+plot(theta(1:720), m_dot)
+title('M dot during exhuast as a function of crank angle')
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'M dot vs Crank Angle.png')
+
