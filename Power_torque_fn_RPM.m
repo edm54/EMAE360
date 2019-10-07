@@ -17,7 +17,6 @@ Qlhv = 44e6; %j/kg from Heywood App D
 f = 14.7; % air to fuel mass ratio
 C = 6; % number of cylinders
 D = .0015; %Total Displacement, m^3
-nt = 0.6; %Indicated Thermal Efficiency
 
 % State 1, 
 rho(1) = p(1)/(R*T(1)); %from ideal gas law
@@ -48,7 +47,7 @@ T(4) = p(4)/(rho(4) * R);
 j = 1;
 % Work
 
-Ws = nt*Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
+Ws = Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
 Ma = (D/C)*(rc/(rc-1)) * rho(1); %Mass of Air in each cylinder, kg
 Wc = Ws*Ma; %Work per Cylinder, J
 Wt = Wc * C; %total work, J
@@ -84,9 +83,9 @@ mech_eff = [ .9 .75];
 Nmax = 7000;
 
 stroke = stroke / 100;
-for N = 1500:25:7500
+for N = 1500:25:9400
     c = 6; % number of cylinder
-   
+%{
     Ubar = 2*(stroke) * N/60;
 
     A = pi * bore * stroke/100;
@@ -94,8 +93,7 @@ for N = 1500:25:7500
     m = .17; % mm
     m = .07/1000; %m
     stroke = stroke / 100;
-    RPM = [2100 9000];
-    mech_eff = [ .9 .75];
+
 
     %u = (8.34* 10^-5) * e^(1474/(temp - 368)
     u = 1.44E-4;
@@ -106,7 +104,10 @@ for N = 1500:25:7500
     f = A * t;
 
     Pf(i) = 1.5 * c * Ubar * f;
+    %}
     
+    RPM = [2100 9000];
+    mech_eff = [ .9 .75];   
     if N<= 2100
         mechanical_eff = .9;
     else
@@ -125,29 +126,33 @@ for N = 1500:25:7500
     % SFC
     SFC(i) = (C * Ma/f)/(Wt); %kg/kj
     SFC_Converted(i) = SFC(i) * 3.6e9; %g/Kw-hr
-    Torque(i) = 9548.8 * P_total(i)/N;
+    Torque(i) = P_total(i)/((2*3.1415*N/60));
     
     i = i + 1;
 end
 
 figure 
-plot(1500:25:7500, P_total);
+plot(1500:25:9400, P_total);
 xlabel('RPM')
 ylabel('Total power, Watts')
 title('Power as a function of RPM')
 
 figure 
-plot(1500: 25:7500, P_specific);
+P_spec_hp = P_specific/745.1;
+plot(1500: 25:9400, P_spec_hp);
 xlabel('RPM')
-ylabel('Specific power, Watts/M^2')
+ylabel('Specific power, hp/m^2')
 title('Specific power as a function of RPM')
 
 
 figure 
-plot(1500: 25:7500, Torque);
+plot(1500: 25:9400, Torque);
 xlabel('RPM')
-ylabel('Torque, NM')
+ylabel('Torque, N*m')
+title('Torque vs RPM')
 
+
+%{
 figure 
 plot(1500: 25:7500, Pf);
 xlabel('RPM')
@@ -157,14 +162,16 @@ title('Friction loss vs. RPM')
 %S(2, i)= refpropm('S','D',rho(2, i), 'P',p(2, i)/1e3, 'air.ppf');
 %S(3, i)= refpropm('S','D',rho(3, i), 'P',p(3, i)/1e3, 'air.ppf');
 %S(4, i)= refpropm('S','D',rho(4, i), 'P',p(4, i)/1e3, 'air.ppf');
+%}
 
 figure
-plot(1500:25:7500, P_hp)
+plot(1500:25:9400, P_hp)
 xlabel('RPM')
 ylabel('Power (hp)')
+title('Power vs RPM')
 
 figure
-plot(1500:25:7500, bmep)
+plot(1500:25:9400, bmep)
 xlabel('RPM')
 ylabel('bmep (kPa)')
 title('bmep vs RPM')
