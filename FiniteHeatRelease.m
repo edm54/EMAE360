@@ -42,7 +42,7 @@ bore = 1.1 * stroke
 crank_rad = stroke/2; %cm
 crank_l = 3.5 * crank_rad; %cm
 Vc = (1500/6)/9
-%%
+
 i = 1
 for theta = -180:1:180
     s(i) = crank_rad * cos(theta*pi/180) + sqrt(crank_l^2 + (crank_rad^2) * (sin(theta*pi/180))^2); 
@@ -74,6 +74,7 @@ fy(2) =0.;        % reset work vector
     R = 287.058;
     rho(i) = ma/(v(i));
     save.temp(i,j) = P/(R*rho(i));
+    disp(rho(i))
     gamma = calc_gamma(save.temp(i,j));
     g(i) = gamma;
     

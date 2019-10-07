@@ -11,6 +11,8 @@ set(0, 'DefaultAxesFontWeight', 'normal', ...
       'DefaultAxesTitleFontSizeMultiplier', 1.2) ;
 set(groot,'defaultLineLineWidth',3)
 bore = 7.045/100;
+r_bs =  1.1
+stroke = bore/r_bs;
 max_v_lift = .12 * bore; %meter
 x = [-360 : 1: 360];
 y1 = -1*(x.^2 -220*x - 1125);
@@ -168,7 +170,7 @@ fit4 = polyfit(l_in4, c_4,  1)
 val4 = polyval(fit4, .18:.01:.35)
 plot(.18:.01:.35, val4)
 
-title('this is it')
+title('Intake Cd vs LV/DV')
 %%
 
 
@@ -187,10 +189,10 @@ for i = 1: length(intake_lift)
     end
     
     
-    lv_dv2(i) = exhuast_lift(i)/DV_ex
-    CD_ex(i) = polyval(fit, lv_dv2(i))
+    lv_dv2(i) = exhuast_lift(i)/DV_ex;
+    CD_ex(i) = polyval(fit, lv_dv2(i));
     if exhuast_lift(i) == 0
-        CD_ex(i) = 0
+        CD_ex(i) = 0;
     end
     
     
@@ -207,18 +209,76 @@ set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 saveas(gcf,'CD vs Crank.png')
 %%
 N = 5000
+N = 15000
 for theta = 0:360
     time = (theta/360) * (1/(N/60));
 end
 
+%% Exhuast
+N = 5000
+To = 1.9286e+03 ;%k
+gamma = calc_gamma(To);
+P_external_e = 101325; %pa
 
-T0 = 600  %k
-gamma = calc_gamma(T0)
+R = 287;
+Co = sqrt(gamma * R * To);
+P_cylinder_e = 6.6417e+05; % Pascals
+rho_cylinder = P_cylinder_e/(R * To); %Kg/m3
+Ma = 3.335683867042752e-04; %Kg
+% D_ex is diamter
+%x = [-360 : 1: 360];
+theta = [-360 : 360];
+time = (theta./360) .* (1/(N/60)); %seconds
+for i = 1:length(theta)
+    v(i) = calc_volume(theta(i));
+end
 
-U = sqrt(2* gamma/(gamma - 1) * (Po/rho0) * (1 - (Pv/Po)^((gamma - 1)/gamma)))
+temp = To;
+pressure = P_cylinder_e * ones(1,length(theta));
+mass = Ma;
+d_mass_d_time = 0;
+delta_t = time(2) - time(1);
 
 
+for i = 1:length(theta)-1
+    lift = exhuast_lift(i);
+    min_area = Am_ex(i) ; %meters
+    gamma = calc_gamma(temp(i));
+    Cd = CD_ex(i);
+    if pressure(i) > P_external_e 
+        m_dot(i) = -1*Cd * rho_cylinder * min_area * Co * sqrt((2/(gamma-1)) * ((P_external_e/P_cylinder_e)^(2/gamma) - ...
+        (P_external_e/P_cylinder_e)^((gamma+1)/gamma))) ;
+    else
+        % Flow into cylinder from exhuast
+        m_dot(i) =   Cd * rho_cylinder * min_area * Co * sqrt((2/(gamma-1)) * ((P_external_e/P_cylinder_e)^(2/gamma) - ...
+        (P_external_e/P_cylinder_e)^((gamma+1)/gamma)));
+    end
+    
+    % Choked flow?
+    rho(i) = pressure(i)/(R * temp(i));
+    velocity(i) = abs(m_dot(i))/(rho(i) * min_area);
+    sound_speed(i) = sqrt(gamma * R *  temp(i));
+        
+    if velocity(i) > sound_speed(i)
+        m_dot(i) = Cd * rho_cylinder * min_area * Co *(2/(gamma + 1)) ^ ((gamma + 1)/(2 *(gamma - 1)));
+        disp('hoke')
+        disp(i)
+    end
+    d_mass_d_time = m_dot(i);
+    mass(i + 1) = mass(i) + delta_t * d_mass_d_time;
+    temp(i+1) = temp(i);
+    if m_dot(i) ~= 0
+        pressure(i + 1) =  mass(i + 1) * R * temp(i+1)/v(i+1);
+    end
+    
 
+end
 
+%U = sqrt(2* gamma/(gamma - 1) * (Po/rho0) * (1 - (Pv/Po)^((gamma - 1)/gamma)))
 
-
+%plot( theta(1 :720), rho)
+%plot( theta, mass)
+figure
+plot( theta, pressure)
+figure
+plot(theta, mass)
