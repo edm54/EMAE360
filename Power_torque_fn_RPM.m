@@ -153,6 +153,8 @@ xlabel('RPM')
 ylabel('Total power, Watts')
 title('Power as a function of RPM')
 
+
+
 figure 
 P_spec_hp = P_specific/745.1;
 plot(1500: 25:9400, P_spec_hp);
@@ -166,7 +168,8 @@ plot(1500: 25:9400, Torque);
 xlabel('RPM')
 ylabel('Torque, N*m')
 title('Torque vs RPM')
-
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'Torque vs RPM.png')
 
 %{
 figure 
@@ -185,12 +188,17 @@ plot(1500:25:9400, P_hp)
 xlabel('RPM')
 ylabel('Power (hp)')
 title('Power vs RPM')
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'HP vs RPM.png')
+
 
 figure
 plot(1500:25:9400, bmep)
 xlabel('RPM')
 ylabel('bmep (kPa)')
 title('bmep vs RPM')
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'bmep vs RPM.png')
 
 %plot(P_hp(i,:),.0015 : .000050 : .0018 )
 otto_eff = 1-(1/rc^(gamma-1));
