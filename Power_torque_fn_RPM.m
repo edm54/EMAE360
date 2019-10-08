@@ -52,6 +52,7 @@ Ma = (D/C)*(rc/(rc-1)) * rho(1); %Mass of Air in each cylinder, kg
 Wc = Ws*Ma; %Work per Cylinder, J
 Wt = Wc * C; %total work, J
 nv = Ma*C/(rho(1)*D);
+nt = 1-(T(4)-T(1))/(T(3)-T(2));
 
 RPM = 5000;
 D_cc = 1500;

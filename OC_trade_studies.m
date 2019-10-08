@@ -22,7 +22,7 @@ for rc = 9:.1:10
     gamma = 1.4;
     R = 287; %j/kg, gas constant
     %rc = 9; % compression ration
-    Qlhv = 42.7e6; %j/kg
+    Qlhv = 44e6; %j/kg
     Cp = R*gamma/(gamma-1); 
     f = 14.7; % air to fuel ratio
     
