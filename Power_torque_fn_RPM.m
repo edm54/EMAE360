@@ -38,7 +38,7 @@ if f <= 14.7
     nc = 0.95;
 end
 
-
+%Constant volume
 %T(3) = T(2) + nc*Qlhv/(Cp* f); 
 T(3) = 3071.; %K, from CEA
 rho(3) = rho(2);
