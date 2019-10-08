@@ -26,24 +26,24 @@ NN=360/step; % number of data points
 % initialize the results data structure
 save.theta=zeros(NN,1); % crankangle
 save.vol=zeros(NN,1);   % volume 
-save.press=zeros(NN,2) % pressure 
+save.press=zeros(NN,2); % pressure 
 save.work=zeros(NN,2);  % work
 save.temp = zeros(NN,2);
 
 
 pinit(1) = 1; % Engine 1 initial dimensionless pressure P/P1
 pinit(2) = 1; % Engine 2 initial dimensionless pressure P/P1 
-ma = 3.335683867042752e-04
+ma = 3.335683867042752e-04;
 n_constant = ma/(1000*28.97);
 r_constant = 8.314;
 stroke = 6.4100000000000; %cm
 bore = 7.051000000000001; %cm
-bore = 1.1 * stroke
+bore = 1.1 * stroke;
 crank_rad = stroke/2; %cm
 crank_l = 3.5 * crank_rad; %cm
 Vc = (1500/6)/9
 
-i = 1
+i = 1;
 for theta = -180:1:180
     s(i) = crank_rad * cos(theta*pi/180) + sqrt(crank_l^2 + (crank_rad^2) * (sin(theta*pi/180))^2); 
     v(i) = (Vc + (crank_l + crank_rad - s(i))*(pi*bore(1)^2)/4)/1e6;
@@ -57,7 +57,7 @@ thetae = theta + step; %final crankangle in step
 fy(1) = pinit(j); % assign initial pressure to working vector
 fy(2) =0.;        % reset work vector 
 
-  % for loop for pressure and work calculation
+% for loop for pressure and work calculation
   for i=1:NN,
     [fy, vol] = integrate(theta,thetae,fy);
     
