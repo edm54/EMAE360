@@ -7,7 +7,7 @@ rc = 10;
 % Initial Conditions
 p(1) = 101325;%pa
 T(1) = 294; %k
-gamma = 1.4;
+gamma = calc_gamma(T(1))
 R = 287; %j/kg*K, gas constant
 Cp = R*gamma/(gamma-1); %J/kg*K
 Cv = Cp-R;
@@ -25,6 +25,11 @@ rho(1) = p(1)/(R*T(1)); %from ideal gas law
 rho(2) = rho(1) * rc;
 p(2) = p(1)* (rho(2)/rho(1))^gamma;
 T(2) = p(2)/(rho(2)* R);
+for i = 0:5
+    gamma = calc_gamma(T(2))
+    p(2) = p(1)* (rho(2)/rho(1))^gamma;
+    T(2) = p(2)/(rho(2)* R);
+end
 
 % State 3, path 2-3: constant volume heat addition
 
@@ -42,8 +47,18 @@ p(3) = rho(3) * R* T(3);
 
 % State 4
 rho(4) = rho(1);
+
 p(4) = p(3)* (rho(4)/rho(3))^ (gamma); %this is an estimate, could use refprop to find actual
 T(4) = p(4)/(rho(4) * R);
+gamma = calc_gamma(T(4))
+
+for i = 1:5
+    p(4) = p(3)* (rho(4)/rho(3))^ (gamma); %this is an estimate, could use refprop to find actual
+    T(4) = p(4)/(rho(4) * R);
+    gamma = calc_gamma(T(4))
+end
+
+
 j = 1;
 % Work
 
