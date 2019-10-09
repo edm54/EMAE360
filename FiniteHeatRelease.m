@@ -41,7 +41,7 @@ bore = 7.051000000000001; %cm
 bore = 1.1 * stroke;
 crank_rad = stroke/2; %cm
 crank_l = 3.5 * crank_rad; %cm
-Vc = (1500/6)/9
+Vc = (1500/6)/9;
 
 i = 1;
 for theta = -180:1:180
@@ -58,7 +58,7 @@ fy(1) = pinit(j); % assign initial pressure to working vector
 fy(2) =0.;        % reset work vector 
 
 % for loop for pressure and work calculation
-  for i=1:NN,
+  for i=1:NN
     [fy, vol] = integrate(theta,thetae,fy);
     
     % reset to next interval
@@ -95,6 +95,8 @@ imep2 = eta2*q*(r/(r -1));
 eta_rat1 = eta1/(1-r^(1-gamma)); 
 eta_rat2 = eta2/(1-r^(1-gamma));
 
+
+
 % output overall results
 fprintf('                  Engine 1           \n');
 fprintf(' Theta_start       %5.2f              \n', thetas(1,1));
@@ -118,7 +120,7 @@ xlabel('Theta (deg)','fontsize', 18)
 ylabel('Pressure (bar)','fontsize', 18)
 title('Pressure (with changing gamma) as a Function of Crank Angle')
 grid
-print -deps2 heatrelpressure
+print -deps2 heatrelpressure;
 
 figure();
 %subplot(1,2,2);
