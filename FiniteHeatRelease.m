@@ -120,6 +120,11 @@ title('Pressure (with changing gamma) as a Function of Crank Angle')
 grid
 print -deps2 heatrelpressure
 
+plot(save.vol, save.press(:, 1), 0, 1, 0, 11)
+xlabel('Normalized Volume','fontsize', 18)
+ylabel('Pressure (bar)','fontsize', 18)
+title('Pressure vs Volume')
+
 figure();
 %subplot(1,2,2);
 plot(save.theta,save.work(:,1),'-', 'linewidth',2)
