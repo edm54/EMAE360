@@ -52,7 +52,7 @@ if f <= 14.7
 end
 
 
-T(3) = 3058.; %K, from CEA
+T(3) = 2869.; %K, from CEA
 rho(3) = rho(2);
 p(3) = rho(3) * R* T(3);
 
@@ -138,7 +138,7 @@ for N = 1500:25:9400
 
     Pf(i) = 1.5 * c * Ubar * f;
     %}
-    RPM = [2100 9000];
+    RPM = [2100 9400];
     mech_eff = [ .9 .75];   
     if N<= 2100
         mechanical_eff = .9;
