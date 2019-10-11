@@ -132,6 +132,7 @@ for N = 1500:25:9400
     Power(i) = Wt * N/120;
     P_rate(i) = .8 * Power(i); 
     P_specific(i) = mechanical_eff* Ws * N/120;
+    %P_specific(i) =  Ws * N/120;
     P_cylinder(i) = P_specific(i) * Ma;
     P_total(i) = P_cylinder(i) * C;
     imep(i) = P_total(i)/1000*2*10^3/(D*1000*(N/60));

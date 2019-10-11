@@ -118,6 +118,8 @@ xlabel('Theta (deg)','fontsize', 18)
 ylabel('Pressure (bar)','fontsize', 18)
 title('Pressure (with changing gamma) as a Function of Crank Angle')
 grid
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'P as a fn of crank angle with changing gamma.png')
 print -deps2 heatrelpressure
 
 figure();
@@ -131,16 +133,6 @@ ylabel('Work','fontsize', 18)
 title('Work as a Function of Crank Angle')
 grid
 
-figure();
-%subplot(1,2,2);
-plot(save.theta,save.temp(:,1),'-', 'linewidth',2)
-set(gca, 'fontsize', 18,'linewidth',2);
-%grid
-legend('Engine 1', 'Location','NorthWest')
-xlabel('Theta (deg)','fontsize', 18)
-ylabel('Temp','fontsize', 18)
-title('Temperature (with changing gamma) as a Function of Crank Angle')
-grid
 
 figure();
 %subplot(1,2,2);
@@ -152,6 +144,8 @@ xlabel('Theta (deg)','fontsize', 18)
 ylabel('Temp','fontsize', 18)
 title('Temperature (with changing gamma) as a Function of Crank Angle')
 grid
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'temp v crank with changing gamma.png')
 
 figure();
 %subplot(1,2,2);
@@ -163,6 +157,8 @@ xlabel('Theta (deg)','fontsize', 18)
 ylabel('Temp','fontsize', 18)
 title('Gamma as a Function of Crank Angle')
 grid
+set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+saveas(gcf,'Gamma Vs Crank angle.png')
 
 
 function[fy,vol] = integrate(theta,thetae,fy)
