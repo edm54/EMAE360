@@ -22,8 +22,6 @@ rho(1) = p(1)/(R*T(1)); %from ideal gas law
 
 % State 2, path 2-3: isentropic compression
 rho(2) = rho(1) * rc;
-p(2) = p(1)* (rho(2)/rho(1))^gamma;
-T(2) = p(2)/(rho(2)* R);
 
 interval = (rho(2)-rho(1))/500;
 rho_comp = rho(1):interval:rho(2);
@@ -38,11 +36,8 @@ for i = 2:length(rho_comp)
     Tcomp(i) = pcomp(i) / (rho_comp(i)*R);
 end
 
-for i = 0:5
-    gamma = calc_gamma(T(2));
-    p(2) = p(1)* (rho(2)/rho(1))^gamma;
-    T(2) = p(2)/(rho(2)* R);
-end
+p(2) = pcomp(length(pcomp));
+T(2) = Tcomp(length(Tcomp));
 
 % State 3, path 2-3: constant volume heat addition
 
@@ -52,7 +47,7 @@ if f <= 14.7
 end
 
 
-T(3) = 3058.; %K, from CEA
+T(3) = 2868.97; %K, from CEA
 rho(3) = rho(2);
 p(3) = rho(3) * R* T(3);
 
@@ -138,7 +133,7 @@ for N = 1500:25:9400
 
     Pf(i) = 1.5 * c * Ubar * f;
     %}
-    RPM = [2100 9000];
+    RPM = [2100 9400];
     mech_eff = [ .9 .75];   
     if N<= 2100
         mechanical_eff = .9;
