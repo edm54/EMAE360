@@ -60,7 +60,9 @@ end
 %%
 
 % Fuerg 5.11
+% 2 times 
 D_in = .333 * bore;
+
 D_ex = .29 * bore ;
 DS_in = .21 * D_in;
 DS_ex = .24 * D_ex;
@@ -122,6 +124,8 @@ plot(x, Am_ex)
 legend('Intake', 'Exhuast')
 title('Flow Area (m^2) as a Function of Crank Angle')
 legend('Intake Flow Area', 'Exhuast Flow Area')
+ylabel('Flow Area (M^2)')
+xlabel('Crank Angle')
 set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 saveas(gcf,'Flow Area vs Crank.png')
 
@@ -215,7 +219,7 @@ for theta = 0:360
 end
 
 %% Exhuast
-N = 8000
+N = 5000
 To = 1.9286e+03 ;%k
 gamma = calc_gamma(To);
 P_external_e = 101325; %pa
