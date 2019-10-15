@@ -81,7 +81,8 @@ ylabel("Thermal efficiency")
 hold on
 yyaxis right
 plot(9:.1:10, SFC_Converted(:, 1));
-   
+legend('Thermal Efficiency', 'SFC')
+
 %st = strcat('Compression Ratio =  ' , num2str(9 + .1*(i-1)))
 %text(.0016,SFC_Converted(i,1)+.25, st);
 %plot(SFC_Converted(i,:)
