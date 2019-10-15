@@ -46,8 +46,7 @@ if f <= 14.7
     nc = 0.95;
 end
 
-
-T(3) = 2869.; %K, from CEA
+T(3) = 2868.97; %K, from CEA
 rho(3) = rho(2);
 p(3) = rho(3) * R* T(3);
 
