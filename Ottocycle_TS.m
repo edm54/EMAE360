@@ -59,7 +59,7 @@ SFC_Converted = SFC * 3.6e9; %g/Kw-hr
 
 S(1)= refpropm('S','D',rho(1), 'P',p(1)/1e3, 'air.ppf');
 S(2)= refpropm('S','D',rho(2), 'P',p(2)/1e3, 'air.ppf');
-S(3)= refpropm('S','T',3000, 'P',p(3)/1e3, 'air.ppf');
+S(3)= refpropm('S','T',2869, 'P',p(3)/1e3, 'air.ppf');
 S(4)= refpropm('S','D',rho(4), 'P',p(4)/1e3, 'air.ppf');
 
 
