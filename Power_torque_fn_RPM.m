@@ -155,7 +155,7 @@ fprintf('                  Mountain CWRU: Baja Blast           \n');
 fprintf(' Outputs at 5000 RPM \n')
 fprintf(' Net Work                 %7.2f             \n', Wt);
 fprintf(' Net Power                %7.2f \n', P_hp(141))
-fprintf(' Torque         %5.3f               \n', Torque(141));
+fprintf(' Torque            %5.3f               \n', Torque(141));
 fprintf(' Thermal Efficiency         %5.3f               \n', nt);
 fprintf(' Bmep                      %5.2f                \n', bmep(141));
 fprintf(' Outputs at 9400 RPM \n')

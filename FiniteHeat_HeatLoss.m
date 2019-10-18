@@ -1,4 +1,25 @@
-%Real Engine Cycle with Heat Transfer from the Cylinder
+
+%%Overall heat Transfer coefficient
+pi = 3.14159;
+b = 0.0705; %bore
+k = ; %working fluid thermal conductivity
+Ma = ;  %Mass flow rate of air
+Mf = ;  %Mass flow rate of fuel
+mu_f = ; %Dynamic viscosity of working fluid
+Ubar = ; %mean piston speed
+
+Ap = b^2*pi/4;
+Re = (Ma+Mf)*b/(Ap*mu_f);
+
+Nu = 10.4*Re^0.75;
+ho = Nu*(k/b);
+
+Tbar_g = ; %Time averaged gas temperature
+Tc = ; %Temperature of the coolant
+heatflux = ho*(Tbar_g - Tc);
+
+
+%% Real Engine Cycle with Heat Transfer from the Cylinder
 step = 1; %crankangle interval for calculations
 NN = 360/step;  %number of datapoints
 theta = -180; %initial crankangle
@@ -36,8 +57,15 @@ properties.heatflux = zeros(NN,1);
 for i = 1:NN
     properties.theta(1) = theta;
     properties.vol(1) = nondimV(theta);
-    dxb_dtheta = burnRate(properties.theta(i), thetas, thetad,a,n,xb(i));
     
+    if %valves are closed
+        U = 2.28*Ubar + 0.00324*Tr*Vd/Vr*(P-Pm)/Pr;
+    else %valves are opened
+        U = 6.18*Ubar;
+    end
+    
+    dxb_dtheta = burnRate(properties.theta(i), thetas, thetad,a,n,xb(i));
+    h = heatTransferCoeff(P(i),U(i),b
     dP_dtheta = pressureChange();
 end
 
@@ -53,4 +81,8 @@ end
 
 function rate = burnRate(theta, thetas, thetad,a,n,xb)
 rate = n*a*(1-xb)*((theta - thetas)/thetad)^(n-1);
+end
+
+function h = heatTransferCoeff(P,U,b,T)\
+h = 3.26*P^0.8*U^0.8*b^(-.2)*T^(-.55);
 end
