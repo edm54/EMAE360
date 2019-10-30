@@ -28,11 +28,11 @@ T(2) = p(2)/(rho(2)* R);
 T(3) = T(2) + .8*Qlhv/(Cp* f); %.8 is thermal efficeny of combustionn
 rho(3) = rho(2);
 p(3) = rho(3) * R* T(3);
-T(3) = 3000
+T(3) = 2869
 
 % State 4
 rho(4) = rho(1);
-p(4) = p(3)* (rho(4)/rho(3))^ (gamma-.1); %this is an estimate, could use refprop to find actual
+p(4) = p(3)* (rho(4)/rho(3))^ (gamma -.1); %this is an estimate, could use refprop to find actual
 T(4) = p(4)/(rho(4) * R);
 j = 1;
 
@@ -45,7 +45,7 @@ Wc = Ws*Ma;
 Wt = Wc * C; %total work
 
 %Power
-N = 5000; % RPM, crusie
+N = 9400; % RPM, crusie
 Power = Wt * N/120;
 P_rate = .8 * Power; 
 P_specific = Ws * N/120;
@@ -59,7 +59,7 @@ SFC_Converted = SFC * 3.6e9; %g/Kw-hr
 
 S(1)= refpropm('S','D',rho(1), 'P',p(1)/1e3, 'air.ppf');
 S(2)= refpropm('S','D',rho(2), 'P',p(2)/1e3, 'air.ppf');
-S(3)= refpropm('S','T',3000, 'P',p(3)/1e3, 'air.ppf');
+S(3)= refpropm('S','T',2869, 'P',p(3)/1e3, 'air.ppf');
 S(4)= refpropm('S','D',rho(4), 'P',p(4)/1e3, 'air.ppf');
 
 

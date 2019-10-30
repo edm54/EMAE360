@@ -46,8 +46,7 @@ if f <= 14.7
     nc = 0.95;
 end
 
-
-T(3) = 2869.; %K, from CEA
+T(3) = 2868.97; %K, from CEA
 rho(3) = rho(2);
 p(3) = rho(3) * R* T(3);
 
@@ -115,22 +114,16 @@ for N = 1500:25:9400
     c = 6; % number of cylinder
 %{
     Ubar = 2*(stroke) * N/60;
-
     A = pi * bore * stroke/100;
-
     m = .17; % mm
     m = .07/1000; %m
     stroke = stroke / 100;
-
-
     %u = (8.34* 10^-5) * e^(1474/(temp - 368)
     u = 1.44E-4;
     %https://wiki.anton-paar.com/en/engine-oil/
     u = .0119;
-
     t = u * (Ubar / m);
     f = A * t;
-
     Pf(i) = 1.5 * c * Ubar * f;
     %}
     RPM = [2100 9400];
@@ -162,7 +155,7 @@ fprintf('                  Mountain CWRU: Baja Blast           \n');
 fprintf(' Outputs at 5000 RPM \n')
 fprintf(' Net Work                 %7.2f             \n', Wt);
 fprintf(' Net Power                %7.2f \n', P_hp(141))
-fprintf(' Torque         %5.3f               \n', Torque(141));
+fprintf(' Torque            %5.3f               \n', Torque(141));
 fprintf(' Thermal Efficiency         %5.3f               \n', nt);
 fprintf(' Bmep                      %5.2f                \n', bmep(141));
 fprintf(' Outputs at 9400 RPM \n')
@@ -219,4 +212,3 @@ end
 otto_eff = 1-(1/rc^(gamma-1));
 o_eff = 1-(T(4)-T(1))./(T(3)-T(2));
  
-

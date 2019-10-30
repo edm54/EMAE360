@@ -1,8 +1,32 @@
+
 %NOTE: Matlab trig functions take angles in radians as arguments, but this
 %program uses angles in degrees. This needs to be converted before this
 %program is implemented. 
 
 %Real Engine Cycle with Heat Transfer from the Cylinder
+
+
+%%Overall heat Transfer coefficient
+pi = 3.14159;
+b = 0.0705; %bore
+k = ; %working fluid thermal conductivity
+Ma = ;  %Mass flow rate of air
+Mf = ;  %Mass flow rate of fuel
+mu_f = ; %Dynamic viscosity of working fluid
+Ubar = ; %mean piston speed
+
+Ap = b^2*pi/4;
+Re = (Ma+Mf)*b/(Ap*mu_f);
+
+Nu = 10.4*Re^0.75;
+ho = Nu*(k/b);
+
+Tbar_g = ; %Time averaged gas temperature
+Tc = ; %Temperature of the coolant
+heatflux = ho*(Tbar_g - Tc);
+
+
+%% Real Engine Cycle with Heat Transfer from the Cylinde
 step = 1; %crankangle interval for calculations
 NN = 360/step;  %number of datapoints
 theta = -180; %initial crankangle
@@ -76,6 +100,33 @@ for i = 2:NN
     dP_dtheta = PressureChange(gamma, prop.press(i-1), prop.vol(i-1), Qin, dx_dtheta(i), dQw_dtheta(i), dV_dtheta(i));
     prop.press(i) = prop.press(i-1) + dP_dtheta * step; % Assumes that the change in theta is equal to whatever the unit of theta is. This program is written in degrees, but, if this program were written in radians I think it would work out the same. 
     prop.temp(i) = prop.press(i)*prop.vol(i)/(prop.rho(i)*R);
+T_bdc = 300; %Temperature at bdc (K)
+P_bdc = 100 ;%Pressure at bdc (K)
+Up = s*omega/pi; %Mean piston speed (m/s)
+beta = 4*Vo/(b*(Ao-4*Vo/b)); %dimensionless volume
+
+properties.theta = zeros(NN,1);
+properties.vol = zeros(NN,1);
+properties.press = zeros(NN,1);
+properties.work = zeros(NN,1);
+properties.heatloss = zeros(NN,1);
+properties.mass = zeros(NN,1);
+properties.htcoeff = zeros(NN,1);
+properties.heatflux = zeros(NN,1);
+
+for i = 1:NN
+    properties.theta(1) = theta;
+    properties.vol(1) = nondimV(theta);
+    
+    if %valves are closed
+        U = 2.28*Ubar + 0.00324*Tr*Vd/Vr*(P-Pm)/Pr;
+    else %valves are opened
+        U = 6.18*Ubar;
+    end
+    
+    dxb_dtheta = burnRate(properties.theta(i), thetas, thetad,a,n,xb(i));
+    h = heatTransferCoeff(P(i),U(i),b
+    dP_dtheta = pressureChange();
 end
 
 function rate = PressureChange(gamma, P, V, Qin, dx_dtheta, dQw_dtheta, dV_dtheta)
@@ -96,4 +147,7 @@ end
 function dQw_dtheta = HeatLoss(P,V,B,h,b,T1,P1,Tbar)
     h = 4*h*T1/(P1*w*B*b); %nondimensional heat transfer coefficient, nondimensionalized by values at state 1. 
     dQw_dtheta = h*(1+B*V)*(P*V - Tbar); %heat loss through the cylinder wall
+
+function h = heatTransferCoeff(P,U,b,T)\
+h = 3.26*P^0.8*U^0.8*b^(-.2)*T^(-.55);
 end
