@@ -15,7 +15,7 @@ r_bs =  1.1
 stroke = bore/r_bs;
 max_v_lift = .12 * bore; %meter
 %max_v_lift = .005
-x = [-360 : 1: 360];
+x = [-360 : .25: 360];
 y1 = -1*(x.^2 -220*x - 1125);
 
 max_y =max(y1);
@@ -221,11 +221,13 @@ for theta = 0:360
 end
 
 %% Exhuast
-ind = 1
-N = 800: 100: 18000;
+ind = 1;
+N = 800: 25: 10000;
 %N = 5000
 for j = 1 : length(N)
     V_eff(ind) = 1;
+    choke(ind) = 0
+    reverse(ind) = 0
     To = 300 ;%k
     Tf = 1.9286e+03 ;%k
     gamma = calc_gamma(To);
@@ -244,7 +246,7 @@ for j = 1 : length(N)
     Ma = 3.335683867042752e-04; %Kg
     % D_ex is diamter
     %x = [-360 : 1: 360];
-    theta = [-360 : 360];
+    theta = [-360 : .25 :  360];
     time = (theta./360) .* (1/(N(j)/60)); %seconds
     for i = 1:length(theta)
         v(i) = calc_volume(theta(i));
@@ -290,7 +292,7 @@ for j = 1 : length(N)
                 sound_speed(i) = sqrt(gamma * R *  temp(i));
 
                 %if velocity(i) > sound_speed(i)
-                if r1(i) <= (2/(gamma + 1))^(gamma/(gamma - 1))/10 && m_dot(i)<0
+                if r1(i) <= (2/(gamma + 1))^(gamma/(gamma - 1))/15 && m_dot(i)<0
                     %m_dot(i) = -1 * Cd * rho_cylinder * min_area * Co *(2/(gamma + 1))...
                        % ^ ((gamma + 1)/(2 *(gamma - 1)));
                      m_dot(i) = -2 * Cd_ex * pressure(i) * min_area_ex * (gamma /Co) *(2/(gamma + 1))...
@@ -299,6 +301,7 @@ for j = 1 : length(N)
                    %m_dot(i) = -1 * ((CD_ex(i) * min_area * P_external_e)/sqrt(R * temp(i)))...
                    % *sqrt(gamma) * (2/(gamma + 1))^((gamma + 1)/(2*(gamma - 1))) ;
                     disp('choke')
+                    choke(ind) = choke(ind) + 1;
                     disp(N(j))
                 end
             else
@@ -308,6 +311,7 @@ for j = 1 : length(N)
                     m_dot(i) = 2 * Cd_ex * rho(i) * min_area_ex * Co * sqrt((2/(gamma-1))...
                         * ((P_external_e/pressure(i))^(-2/gamma) - ...
                     (r1(i))^(-1*(gamma+1)/gamma)));
+                    reverse(ind) = reverse(ind) + 1;
                     %disp('reverse')
                 else
                     m_dot(i) = 0;
@@ -347,12 +351,13 @@ for j = 1 : length(N)
                 %sound_speed(i) = sqrt(gamma * R *  temp(i));
 
                 %if velocity(i) > sound_speed(i)
-                if r2(i) <= (2/(gamma + 1))^(gamma/(gamma - 1))/15 
+                if r2(i) <= ((2/(gamma + 1))^(gamma/(gamma - 1)))/15 
                     %m_dot(i) = -1 * Cd * rho_cylinder * min_area * Co *(2/(gamma + 1))...
                        % ^ ((gamma + 1)/(2 *(gamma - 1)));
                      m_dot(i) =  m_dot(i) + 2  * Cd_in * rho_cylinder * min_area_in * (gamma /Co) *(2/(gamma + 1))...
                         ^ ((gamma + 1)/(2 *(gamma - 1)));
- 
+                    
+                   choke(ind) = choke(ind) + 1;
                    %m_dot(i) = -1 * ((CD_ex(i) * min_area * P_external_e)/sqrt(R * temp(i)))...
                    % *sqrt(gamma) * (2/(gamma + 1))^((gamma + 1)/(2*(gamma - 1))) ;
                     %disp('choke')
@@ -362,8 +367,9 @@ for j = 1 : length(N)
                 % Flow out of cylinder into inlet
                     m_dot(i) = m_dot(i) + -2 * Cd_in * rho(i) * min_area_in * Co * sqrt((2/(gamma-1))...
                         * ((r2(i))^(-2/gamma) - (r2(i))^(-1*(gamma+1)/gamma)));
-                    %disp('reverse')
-                    %disp(theta(i))
+                    reverse(ind) = reverse(ind) + 1;
+                    disp('reverse')
+                    disp(N(j))
             end
             %m_dot(i) = 0;
             
@@ -380,11 +386,9 @@ for j = 1 : length(N)
        else
             temp(i+1) = (mass(i) * temp(i) + To * (mass(i+1) - mass(i)))/mass(i+1);
        end
-       
-  
-        if abs(m_dot(i)) > .00001
+       if abs(m_dot(i)) > .00001
             pressure(i + 1) =  mass(i + 1) * R * temp(i+1)/v(i+1);
-        end
+       end
 
     end
     veff2(ind) =  mass(end)/mass(1);
@@ -400,9 +404,11 @@ end
     plot(N, V_eff)
     plot(N, veff1)
     plot(N, veff2)
+    grid 
     title('Volumetric Efficency vs RPM')
+    legend('Exhuast', 'Intake', 'Total')
     
-    
+    %%
     
     figure
     plot(theta, mass)
@@ -415,7 +421,7 @@ end
     %saveas(gcf,'Air mass exhaust vs crank.png')
 
     figure
-    plot(theta(1:720), m_dot)
+    plot(theta(1:end-1), m_dot)
     title('M dot during exhuast as a function of crank angle')
     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
     %saveas(gcf,'M dot vs Crank Angle.png')
@@ -433,7 +439,7 @@ end
 %     title('sound speed & velo vs theta')
 %%
     figure
-    plot(theta(1:720), rho)
+    plot(theta(1:end-1), rho)
     title('rho vs theta')
 
   
@@ -452,7 +458,7 @@ end
     %saveas(gcf,'Air mass exhaust vs crank.png')
 
     figure
-    plot(theta(1:720), m_dot)
+    plot(theta(1:end-1), m_dot)
     title('M dot during exhuast as a function of crank angle')
     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
     %saveas(gcf,'M dot vs Crank Angle.png')
@@ -461,3 +467,14 @@ end
 figure 
 plot(theta, v)
  title('Vol as a function of crank angle')
+ 
+ %%
+ N = 800: 25: 10000
+figure
+hold on
+plot(N, V_eff)
+plot(N, veff1)
+plot(N, veff2)
+grid 
+title('Volumetric Efficency vs RPM')
+legend('Exhuast', 'Intake', 'Total')
