@@ -4,12 +4,11 @@ close all
 r = 10;
 T1 = 300; %K 
 P1 = 101325; %Pa
-V1 = 0.001650; %m^3
-ma = 0.000336; %kg
+V1 = 0.000275; %m^3
 R = 287; %J/kg K
 
 thetai = 0;
-mstep = 0.0005;
+mstep = 0.001;
 thetaf = 2*pi;
 mprops.theta = thetai:mstep:thetaf;
 mprops.theta = mprops.theta.';
@@ -19,12 +18,12 @@ mprops.temp = zeros(length(mprops.theta),1);
 mprops.rho = zeros(length(mprops.theta),1);
 gamma = zeros(length(mprops.theta),1);
 
-mprops.vol(1) = nondimV(thetai, r);
+mprops.vol(1) = nondimV(thetai, r)*V1;
 mprops.press(1) = 1;
 mprops.temp(1) = T1;
 k = P1*(V1)^(calc_gamma(T1));
-mprops.rho(1) = 1.2;
-ma = mprops.vol(1)*V1/mprops.rho(1);
+mprops.rho(1) = P1/(287*T1);
+ma = mprops.rho(1)*(mprops.vol(1));
 
 for i = 2:length(mprops.theta)
     gamma(i) = calc_gamma(mprops.temp(i-1));
@@ -60,23 +59,23 @@ mf = ma / af;
 s = 0.0705; %Stroke m
 b = 0.0641; %Bore m
 Ao = pi*(b/2)^2; %Total Area of Combustion chamber at TDC, will come from 
-Vo = 0.00015; %Total volume at top dead center, m^3
-V1 = 0.00165; %Total volume at bottom dead center
+Vo = 0.00015/6; %Total volume at top dead center, m^3
+V1 = 11*Vo; %Total volume at bottom dead center
 Vr = V1; %Volume at the time the intake valve closes
-Vd = 0.0015; %Displacement Volume
+Vd = 0.0015/6; %Displacement Volume
 P1 = 101325; %Initial Pressure, Pa
 Pr = 101325; %Pressure when intatke valve closes; assumed that the intake valve closes at bottom dead center. 
 T1 = 300; %K
 Tr = T1; %K
-Tw = 550; %K
+Tw = 500; %K
 Tbar = Tw / T1;
 Qlhv = 44000000; %J/kg
 Qin = mf*Qlhv/(P1*V1); %Dimensionless total Heat release
 N = 5000; %rpm
-omega = N/60; %rps
+omega = N*2*pi/60; %rps
 c = 0; %mass loss coefficient
-Ubar = s*omega/pi; %Mean piston speed (m/s)
-B = 4*Vo/(b*(Ao-4*Vo/b)); %dimensionless volume
+Ubar = 2*s*N/60; %Mean piston speed (m/s)
+B = 4*V1/(b*(Ao-4*Vo/b)); %dimensionless volume
 
 %Engine Geometry & parameters
 g(1) = r;
@@ -123,17 +122,32 @@ for i = 2:NN
 end
 
 for i = 2:NN
-    gamma = calc_gamma(prop.temp(i-1)*T1);
-    prop.press(i) = rk4(step,prop.theta(i-1),prop.press(i-1),mprops.press(2*i-1),mprops.press(2*i),mprops.press(2*i+1),prop.temp(i-1),g,gamma); % Assumes that the change in theta is equal to whatever the unit of theta is. This program is written in degrees, but, if this program were written in radians I think it would work out the same. 
+    gamma = calc_gamma(prop.temp(i-1));
+    prop.press(i) = rk4(step,prop.theta(i-1),prop.press(i-1),mprops.press(i-1),prop.temp(i-1),g,gamma); % Assumes that the change in theta is equal to whatever the unit of theta is. This program is written in degrees, but, if this program were written in radians I think it would work out the same. 
     prop.temp(i) = prop.press(i)*P1*V1*prop.vol(i)/(prop.rho(i)*R);
 end
 
+for i = 1:NN
+   prop.press(i) = prop.press(i)*P1; 
+end
+
+hold on
+figure
+plot(prop.theta,prop.press)
+plot(mprops.theta,mprops.press)
+hold off 
+ylabel("Pressure, Pa")
+xlabel("Angle, rad")
+title("Pressure vs Crank Angle")
+
 %% 
-function P2 = rk4(h,theta,P,Pm,Pm1,Pm2,T,g,gamma)
+%Approximates motored pressure at the points immediately to the right and
+%left as being approximately equivalent to point i
+function P2 = rk4(h,theta,P,Pm,T,g,gamma)
     F1 = h*deriv(theta,P,Pm,T,g,gamma);
-    F2 = h*deriv(theta+h/2,P+F1/2,Pm1,T,g,gamma);
-    F3 = h*deriv(theta+h/2,P+F2/2,Pm1,T,g,gamma);
-    F4 = h*deriv(theta+h,P+F3,Pm2,T,g,gamma);
+    F2 = h*deriv(theta+h/2,P+F1/2,Pm,T,g,gamma);
+    F3 = h*deriv(theta+h/2,P+F2/2,Pm,T,g,gamma);
+    F4 = h*deriv(theta+h,P+F3,Pm,T,g,gamma);
     P2 = P + (F1+2*F2+2*F3+F4)/6;
 end
 
