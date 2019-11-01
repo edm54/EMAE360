@@ -131,14 +131,15 @@ for i = 1:NN
    prop.press(i) = prop.press(i)*P1; 
 end
 
-hold on
 figure
+hold on
 plot(prop.theta,prop.press)
 plot(mprops.theta,mprops.press)
-hold off 
 ylabel("Pressure, Pa")
 xlabel("Angle, rad")
 title("Pressure vs Crank Angle")
+legend("Actual Pressure", "Motored Pressure")
+hold off 
 
 %% 
 %Approximates motored pressure at the points immediately to the right and
