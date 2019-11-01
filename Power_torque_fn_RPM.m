@@ -1,5 +1,6 @@
 %%
-clear all
+%clear all
+% Requires a run of valve_lift before running for curves
 close all
 rc = 10;
     
@@ -110,7 +111,10 @@ mech_eff = [ .9 .75];
 Nmax = 7000;
 
 stroke = stroke / 100;
-for N = 1500:25:9400
+
+revs = 800:25:10000
+
+for N = 800:25:10000
     c = 6; % number of cylinder
 %{
     Ubar = 2*(stroke) * N/60;
@@ -118,7 +122,7 @@ for N = 1500:25:9400
     m = .17; % mm
     m = .07/1000; %m
     stroke = stroke / 100;
-    %u = (8.34* 10^-5) * e^(1474/(temp - 368)
+    %u = (8.34* 10^-5) * e^(1474/(temp - 368) 
     u = 1.44E-4;
     %https://wiki.anton-paar.com/en/engine-oil/
     u = .0119;
@@ -126,8 +130,11 @@ for N = 1500:25:9400
     f = A * t;
     Pf(i) = 1.5 * c * Ubar * f;
     %}
-    RPM = [2100 9400];
-    mech_eff = [ .9 .75];   
+    %RPM = [2100 9400];
+    RPM = [2100 10000];
+    %mech_eff = [ .9 .75];  
+    %mech_eff = [ .8 .75];  
+    mech_eff = [ .9 .75];  
     if N<= 2100
         mechanical_eff = .9;
     else
@@ -135,11 +142,11 @@ for N = 1500:25:9400
     end
     Power(i) = Wt * N/120;
     P_rate(i) = .8 * Power(i); 
-    P_specific(i) = mechanical_eff* Ws * N/120;
+    P_specific(i) = V_eff(i) * mechanical_eff* Ws * N/120;
     P_cylinder(i) = P_specific(i) * Ma;
     P_total(i) = P_cylinder(i) * C;
     imep(i) = P_total(i)/1000*2*10^3/(D*1000*(N/60));
-    bmep(i) = mechanical_eff*imep(i);
+    bmep(i) = V_eff(i) * mechanical_eff*imep(i);
     %p_real(i) = ((P_total(i) - Pf(i))/(P_total(i))) * P_total(i)
     
     P_hp(i) = P_total(i)/745.699872;
@@ -165,21 +172,21 @@ pl = input('Plot? Type y or n \n ->', 's');
 
 if strcmp(pl, 'y')
     figure 
-    plot(1500:25:9400, P_total);
+    plot(revs, P_total);
     xlabel('RPM')
     ylabel('Total power, Watts')
     title('Power as a function of RPM')
 
     figure 
     P_spec_hp = P_specific/745.1;
-    plot(1500: 25:9400, P_spec_hp);
+    plot(revs, P_spec_hp);
     xlabel('RPM')
     ylabel('Specific power, hp/m^2')
     title('Specific power as a function of RPM')
 
 
     figure 
-    plot(1500: 25:9400, Torque);
+    plot(revs, Torque);
     xlabel('RPM')
     ylabel('Torque, N*m')
     title('Torque vs RPM')
@@ -198,13 +205,13 @@ if strcmp(pl, 'y')
     %}
 
     figure
-    plot(1500:25:9400, P_hp)
+    plot(revs, P_hp)
     xlabel('RPM')
     ylabel('Power (hp)')
     title('Power vs RPM')
 
     figure
-    plot(1500:25:9400, bmep)
+    plot(revs, bmep)
     xlabel('RPM')
     ylabel('bmep (kPa)')
     title('bmep vs RPM')
