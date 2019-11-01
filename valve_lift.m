@@ -1,7 +1,7 @@
 %Air intate
 clear all
 clc
-close all
+% all
 
 %% Prepare Pllots
 set(0, 'DefaultAxesFontWeight', 'normal', ...
@@ -12,13 +12,13 @@ set(0, 'DefaultAxesFontWeight', 'normal', ...
       'DefaultAxesTitleFontSizeMultiplier', 1.2) ;
 set(groot,'defaultLineLineWidth',3)
 
-
 bore = 7.045/100;
 r_bs =  1.1;
 stroke = bore/r_bs;
-max_in_lift = .12 * bore; %meter
-max_ex_lift = .12 * bore;
-
+%max_in_lift = .12 * bore; %meter
+%max_ex_lift = .12 * bore;
+max_in_lift = .00733 %meter
+max_ex_lift = .008459 % meter
 
 %%max_v_lift = .10 * bore; 
 %max_v_lift = .08 * bore;
@@ -62,14 +62,14 @@ legend('Exhuast valve lift','Intake valve lift')
    % .8459 cm of lift
     % floor of .1 cm
     
-    
 % Fuerg 5.11
 % 2 times 
-D_in = .333 * bore;
-D_ex = .29 * bore ;
+% D_in = .37 * bore;
+% D_ex = .32 * bore ;
 
-D_in = .37 * bore;
-D_ex = .32 * bore ;
+D_in = .026;
+D_ex = .0225 ;
+%D_ex = .019 ;
 
 DS_in = .21 * D_in;
 DS_ex = .24 * D_ex;
@@ -221,8 +221,8 @@ legend('Intake', 'Exhuast')
 %% Exhuast
 ind = 1;
 N = 800: 25: 10000;
-N = 800:25:10000;
-N = 800:100:15000;
+%N = 800:25:9400;
+%N = 800:100:15000;
 %N = 5000
 for j = 1 : length(N)
     V_eff(ind) = 1;
