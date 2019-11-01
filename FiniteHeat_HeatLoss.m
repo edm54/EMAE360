@@ -124,7 +124,7 @@ end
 for i = 2:NN
     gamma = calc_gamma(prop.temp(i-1));
     prop.press(i) = rk4(step,prop.theta(i-1),prop.press(i-1),mprops.press(i-1),prop.temp(i-1),g,gamma); % Assumes that the change in theta is equal to whatever the unit of theta is. This program is written in degrees, but, if this program were written in radians I think it would work out the same. 
-    prop.temp(i) = prop.press(i)*P1*V1*prop.vol(i)/(prop.rho(i)*R);
+    prop.temp(i) = prop.press(i)*P1/(prop.rho(i)*R);
 end
 
 for i = 1:NN
