@@ -71,7 +71,8 @@ Tw = 525; %K
 Tbar = Tw / T1;
 Tbar = 1.2
 Qlhv = 44000000; %J/kg
-Qin = mf*Qlhv/(P1*V1); %Dimensionless total Heat release
+nc = 0.95;
+Qin = mf*Qlhv*nc/(P1*V1); %Dimensionless total Heat release
 Qin = 27.22
 N = 5000; %rpm
 omega = N*2*pi/60; %rps
@@ -135,7 +136,7 @@ for i = 2:NN
     prop.temp(i) = prop.press(i)*P1/(prop.rho(i)*R);
 end
 
-prop.heatflux = prop.heatflux.*T1./(prop.area .*10^6); %MW/m^2
+prop.heatflux = prop.heatflux.*T1./(10^6); %MW/m^2
 
 prop.press = prop.press .* P1; %Pa
 prop.vol = prop.vol .* V1; %m^3
