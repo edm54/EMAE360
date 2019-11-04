@@ -105,7 +105,7 @@ i = 1;
 %% Mechanical eff
 
 stroke = stroke / 100;
-RPM = [2100 9000];
+RPM = [2100 9400];
 mech_eff = [ .9 .75];
 %maximum rpm
 Nmax = 7000;

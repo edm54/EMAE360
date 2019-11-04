@@ -17,7 +17,8 @@ r_bs =  1.1;
 stroke = bore/r_bs;
 %max_in_lift = .12 * bore; %meter
 %max_ex_lift = .12 * bore;
-max_in_lift = .00733 %meter
+max_in_lift = .007 %meter
+max_in_lift = .007 %meter
 max_ex_lift = .008459 % meter
 
 %%max_v_lift = .10 * bore; 
