@@ -1,3 +1,5 @@
+%Returns the cumulative work for one cylinder in kJ, given a (volumetric
+%efficiency, equivalence ratio, RPM).
 function Wnet = FiniteHeatWoschni(nv,eq,N)
 
 %Motored Engine
@@ -56,7 +58,7 @@ V1 = r/(r-1)*Vd;
 Vo = V1/r; %Total volume at top dead center, m^3
 P1 = 101.325; %Initial Pressure, kPa
 T1 = 300; %K
-Tw = 500; %K
+Tw = 500; %K, inside wall temperature
 Tbar = Tw / T1;
 Qlhv = 44000000; %J/kg
 nc = 0.95;
