@@ -1,5 +1,6 @@
 %Motored Engine
 clear
+pi = 3.142;
 r = 10;
 T1 = 300; %K 
 P1 = 101325; %Pa
@@ -39,14 +40,14 @@ end
 %%Overall heat Transfer coefficient
 
 %% Real Engine Cycle with Heat Transfer from the Cylinde
-pi = 3.142;
-step = 0.001; %crankangle interval for calculation
+pi = 3.14;
+step = 0.0001; %crankangle interval for calculation
 thetai = 0; %initial crankangle, rad
-thetaf =2*pi; %final crankangle througout steps
+thetaf =360; %final crankangle througout steps
 NN = (thetaf - thetai)/step + 1;
 
-thetas = (8/9)*pi; %start of heat release (deg)
-thetad = pi/3; %duration of heat release (deg)
+thetas = 160; %start of heat release (deg)
+thetad = 60; %duration of heat release (deg)
 num = thetas:step:(thetas + thetad);
 
 r = 10; %compression ratio
@@ -196,13 +197,13 @@ title("Heat transfer coefficient vs Crank Angle")
 function [P2,dQw_dtheta,ht] = rk4(h,theta,P,T,g,gamma)
     F = [0,0,0,0];
     [F(1), dQw_dtheta, ht] = deriv(theta,P,T,g,gamma);
-    F(1) = F(1) * h;
+    F(1) = F(1)*h;
     [F(2), ~,~] = deriv(theta+h/2,P+F(1)/2,T,g,gamma);
     F(2) = F(2)*h;
     [F(3), ~,~] = deriv(theta+h/2,P+F(2)/2,T,g,gamma);
     F(3) = F(3)*h;
     [F(4),~,~] = deriv(theta+h,P+F(3),T,g,gamma);
-    F(4) = F(4)*h;
+    F(4) =  F(4)*h;
     P2 = P + (F(1)+2*F(2)+2*F(3)+F(4))/6;
 end
 
@@ -251,8 +252,8 @@ h = 3.26*(P^0.8)*(U^0.8)*(b^(-.2))*(T^(-.55));
 end
 
 function [V,rate] = nondimV(theta,r)
-    V = (1/r) + (r-1)/(2*r).*(1+cos(theta));
-    rate = -(r-1)/(2*r)*sin(theta);
+    V = (1/r) + (r-1)/(2*r).*(1+cosd(theta));
+    rate = -(r-1)/(2*r)*sind(theta);
 end
 
 function [xb, rate] = burnRate(theta, thetas, thetad)
