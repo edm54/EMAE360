@@ -105,17 +105,17 @@ opt2 = .00733;
 
     
 %ex_mult = linspace(.27, .37, 10)*bore;
-ex_mult = [.02 ,  .022,  .024,  .026]
-%ex_mult = [ .0165 , .0185, .0205, .0225]
+%ex_mult = [.02 ,  .022,  .024,  .026]
+ex_mult = [ .0165 , .0185, .0205, .0225]
 for index1 = 1:length(ex_mult)
     D_in = .026;
     %D_ex = .29 * bore ;
 
     %D_in = .026;
-    D_in = ex_mult(index1);
+    %D_in = ex_mult(index1);
     
     
-    D_ex = .0225;
+    D_ex = ex_mult(index1)
     %D_ex = .0225 ;
 
     DS_in = .21 * D_in;
@@ -427,7 +427,9 @@ for index1 = 1:length(ex_mult)
         %title('Volumetric Efficency vs RPM Varying Intake Diameter')
         legend( '.02', '.022',  '.024', '.026')
 
-        title('Volumetric Efficency vs RPM Varying Intake Diameter')
+        title('Volumetric Efficency vs RPM Varying Exhuast Diameter')
+        xlabel('RPM')
+        ylabel('Volumetric Efficiency')
         %legend('.0165',  '.0185',  '.0205',  '.0225')
         
         
@@ -454,5 +456,7 @@ plot(ex_mult, AOC)
 %plot(m_lift_ex, N(max_ind))
 %plot(m_lift_ex, max_v_eff)
 %legend('In', 'ex', 'total')
-title('Area Under Volumetric Efficiency Curve vs Intake Diameter')
+title('Area Under Volumetric Efficiency Curve vs Exhuast Diameter')
+xlabel('Exhuast Diameter (m)')
+ylabel('Area Under Volumetric Efficiency Curve')
 
