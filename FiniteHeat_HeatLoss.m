@@ -9,7 +9,7 @@ R = 287; %J/kg K
 
 thetai = 0;
 mstep = 0.001;
-thetaf = 2*pi;
+thetaf = 360;
 mprops.theta = thetai:mstep:thetaf;
 mprops.theta = mprops.theta.';
 mprops.vol = zeros(length(mprops.theta),1);
@@ -40,8 +40,8 @@ end
 %%Overall heat Transfer coefficient
 
 %% Real Engine Cycle with Heat Transfer from the Cylinde
-pi = 3.14;
-step = 0.0001; %crankangle interval for calculation
+pi = 3.14159;
+step = 1; %crankangle interval for calculation
 thetai = 0; %initial crankangle, rad
 thetaf =360; %final crankangle througout steps
 NN = (thetaf - thetai)/step + 1;
@@ -72,7 +72,8 @@ Tw = 525; %K
 Tbar = Tw / T1;
 Tbar = 1.2
 Qlhv = 44000000; %J/kg
-Qin = mf*Qlhv/(P1*V1); %Dimensionless total Heat release
+nc = 0.95;
+Qin = mf*Qlhv*nc/(P1*V1); %Dimensionless total Heat release
 Qin = 27.22
 N = 5000; %rpm
 omega = N*2*pi/60; %rps
@@ -122,29 +123,27 @@ prop.area(1) = (Ao-4*Vo/b) + 4* prop.vol(1)/b;
 prop.press(1) = 1; %nondimensional initial pressure, P1/P1
 prop.temp(1) = T1; %initial temperature, K
 
+fy = [prop.press(1),0,0]; %Initial Pressure, Initial work, heat loss
+
 for i = 2:NN
     [prop.vol(i),dV_dtheta(i)] = nondimV(prop.theta(i), r);
     prop.rho(i) = ma / (V1*prop.vol(i));
     prop.area(i) = (Ao-4*Vo/b) + 4* prop.vol(i)*V1/b;
 end
 
-for i = 2:NN
-    gamma = calc_gamma(prop.temp(i-1));
-    gamma = 1.4;
-    gam(i) = gamma;
-    [prop.press(i),prop.heatflux(i-1),prop.htcoeff(i-1)] = rk4(step,prop.theta(i-1),prop.press(i-1),prop.temp(i-1),g,gamma); % Assumes that the change in theta is equal to whatever the unit of theta is. This program is written in degrees, but, if this program were written in radians I think it would work out the same. 
-    prop.temp(i) = prop.press(i)*P1/(prop.rho(i)*R);
+for i = 1:NN
+    [fy,ht,hflux] = integrate_ht(prop.theta(i),prop.theta(i)+step,fy);
+    prop.press(i)=fy(1);
+    prop.work(i)=fy(2);
+    prop.heatloss(i)=fy(3);
+    prop.htcoeff(i)=ht;
+    prop.heatflux(i)=hflux;
 end
 
-prop.heatflux = prop.heatflux.*T1./(prop.area .*10^6); %MW/m^2
+bar = prop.press .* P1/100000; %Bar
+prop.press = prop.press.*P1/(10^6); %MPa
 
-prop.press = prop.press .* P1; %Pa
-prop.vol = prop.vol .* V1; %m^3
-
-mprops.press = mprops.press ./ 10^6; %MPa
-prop.press = prop.press / 10^6; %MPa
-bar = prop.press .* 10; %bar
-
+mprops.press = mprops.press ./ (10^6);
 figure
 hold on
 plot(prop.theta,prop.press)
@@ -160,7 +159,7 @@ plot(prop.theta,bar)
 ylabel("Pressure, bar")
 xlabel("Angle, rad")
 title("Pressure vs Crank Angle")
-
+%{
 figure
 plot(prop.theta,prop.temp)
 ylabel("Temperature, K")
@@ -172,7 +171,7 @@ plot(prop.theta,gam)
 ylabel("Gamma")
 xlabel("Angle, rad")
 title("Gamma vs Crank Angle")
-
+%}
 figure
 plot(prop.theta,prop.vol)
 ylabel("Volume, m^3")
@@ -191,60 +190,103 @@ ylabel("h")
 xlabel("Angle, rad")
 title("Heat transfer coefficient vs Crank Angle")
 
+
 %% 
-%Approximates motored pressure at the points immediately to the right and
-%left as being approximately equivalent to point i
-function [P2,dQw_dtheta,ht] = rk4(h,theta,P,T,g,gamma)
-    F = [0,0,0,0];
-    [F(1), dQw_dtheta, ht] = deriv(theta,P,T,g,gamma);
-    F(1) = F(1)*h;
-    [F(2), ~,~] = deriv(theta+h/2,P+F(1)/2,T,g,gamma);
-    F(2) = F(2)*h;
-    [F(3), ~,~] = deriv(theta+h/2,P+F(2)/2,T,g,gamma);
-    F(3) = F(3)*h;
-    [F(4),~,~] = deriv(theta+h,P+F(3),T,g,gamma);
-    F(4) =  F(4)*h;
-    P2 = P + (F(1)+2*F(2)+2*F(3)+F(4))/6;
+function [fy,ht,hflux] = integrate_ht(theta,thetae,fy)
+    [ht,hflux] = values(theta,fy);
+    [tt,yy] = ode23(@rates,[theta thetae],fy);
+    for j=1:3
+       fy(j) = yy(length(tt),j); 
+    end
 end
 
-function [dP_dtheta, dQw_dtheta, h] = deriv(theta,P,T,g,gamma)
-    r=g(1); 
-    Vd=g(2); 
-    Vr=g(3);
-    b=g(4); 
-    Ubar=g(5); 
-    B=g(6); 
-    P1=g(7); 
-    Pr=g(8); 
-    Qin=g(9); 
-    T1=g(10);
-    Tr=g(11);
-    thetas=g(12);
-    thetad=g(13);
-    w=g(14);
-    Tbar=g(15);
+function [yprime] = rates(theta, fy)
+    r = 10;
+    P1 = 100; %Pa
+    T1 = 300; %K
+    thetas = 160;
+    thetad = 60;
 
+    ma = 0.000336; %kg, Get from intake/outtake program
+    af = 14.7; %Air to fuel ratio
+    mf = ma / af;
+    b = 0.0705; %Bore m
+    b=.1
+    s = 0.0641; %Stroke m
+    s=.1
+    Ao = pi*(b/2)^2; %Total Area of Combustion chamber at TDC, will come from 
+    Vd = 0.0015/6;
+    V1 = r/(r-1)*Vd;
+    Vo = V1/r; %Total volume at top dead center, m^3
+    Vr = V1; %Volume at the time the intake valve closes
+    Tw = 525; %K
+    Tbar = Tw / T1;
+    Tbar = 1.2
+    Qlhv = 44000000; %J/kg
+    nc = 0.95;
+    Qin = mf*Qlhv*nc/(P1*V1); %Dimensionless total Heat release
+    Qin = 27.22
+    N = 5000; %rpm
+    omega = N*2*pi/60; %rps
+    omega = 314.1
+    Ubar = 2*s*N/60; %Mean piston speed (m/s)
+    Ubar = s*omega/pi
+    B = 4*r/(b*(Ao/Vo)-4); %dimensionless volume
+    B = 2.22
+    
     [V,dV_dtheta] = nondimV(theta,r);
-    U = 2.28 * Ubar + 0.00324*T1*(r-1)*(P-V^(-gamma))/r;
+    P = P1*fy(1);
+    T = T1*fy(1)*V;
+    gamma = calc_gamma(T);
+    gamma = 1.4;
+    U = 2.28 * Ubar + 0.00324*T1*(r-1)*(fy(1)-V^(-gamma))/r;
     if theta < thetas 
         dxb_dtheta = 0;
     else
         [~, dxb_dtheta] = burnRate(theta, thetas, thetad);
     end
+    ht = heatTransferCoeff(P,U,b,T);
+    h = ht*T1*4/(P1*1000*omega*B*b);
     
-    h = heatTransferCoeff(P*P1/1000,U,b,T);
-    dQw_dtheta = HeatLoss(P,V,B,h,b,T1,P1,Tbar,w);
-    
-    dP_dtheta = PressureChange(gamma,P,V,Qin,dxb_dtheta,dQw_dtheta,dV_dtheta);
+    term1= -gamma*fy(1)*dV_dtheta/V;
+    term3= h*(1. + B*V)*(fy(1)*V - Tbar)*pi/180.;
+    term2= (gamma-1)/V*(Qin*dxb_dtheta - term3);
+    yprime(1,1)= term1 + term2 ;
+    yprime(2,1)= fy(1)*dV_dtheta;
+    yprime(3,1)= term3;
+    if theta == 160
+        disp('gotem')
+    end
 end
 
-function rate = PressureChange(gamma, P, V, Qin, dx_dtheta, dQw_dtheta, dV_dtheta)
-rate = (gamma-1)/V*(Qin*dx_dtheta-dQw_dtheta)-gamma*P/V*dV_dtheta;
-end
+function [ht,hflux] = values(theta, fy)
+    r = 10;
+    P1 = 100; %Pa
+    T1 = 300; %K
 
-function dQw_dtheta = HeatLoss(P,V,B,h,b,T1,P1,Tbar,w)
-    h_nd = 4*h*T1/(P1*w*B*b); %nondimensional heat transfer coefficient, nondimensionalized by values at state 1. 
-    dQw_dtheta = h_nd*(1+B*V)*(P*V - Tbar); %heat loss through the cylinder wall
+    b = 0.0705; %Bore m
+    b=.1
+    s = 0.0641; %Stroke m
+    s=.1
+    Vd = 0.0015/6;
+    V1 = r/(r-1)*Vd;
+    Tw = 525; %K
+    Tbar = Tw / T1;
+    Tbar = 1.2
+    N = 5000; %rpm
+    omega = N*2*pi/60; %rps
+    omega = 314.1
+    Ubar = 2*s*N/60; %Mean piston speed (m/s)
+    Ubar = s*omega/pi
+
+    
+    [V,~] = nondimV(theta,r);
+    P = P1*fy(1);
+    T = T1*fy(1)*V;
+    gamma = calc_gamma(T);
+    U = 2.28 * Ubar + 0.00324*T1*(r-1)*(fy(1)-V^(-gamma))/r;
+    ht = heatTransferCoeff(P,U,b,T);
+    hflux=ht*T1*(fy(1)*V - Tbar)/10^6;
 end
 
 function h = heatTransferCoeff(P,U,b,T)
@@ -253,13 +295,12 @@ end
 
 function [V,rate] = nondimV(theta,r)
     V = (1/r) + (r-1)/(2*r).*(1+cosd(theta));
-    rate = -(r-1)/(2*r)*sind(theta);
+    rate = -(r-1)/(2*r)*sind(theta)*pi/180;
 end
 
 function [xb, rate] = burnRate(theta, thetas, thetad)
-e = 2.712821282;
 a = 5;
 n = 3;
-xb = 1-e^(-a*((theta - thetas)/thetad)^n);
-rate = n*a*(1-xb)*((theta - thetas)/thetad)^(n-1);
+xb = 1-exp((-a*((theta - thetas)/thetad)^n));
+rate = n*a*(1-xb)/thetad*((theta - thetas)/thetad)^(n-1);
 end

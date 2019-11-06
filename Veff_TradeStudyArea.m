@@ -13,7 +13,7 @@ set(0, 'DefaultAxesFontWeight', 'normal', ...
 set(groot,'defaultLineLineWidth',3)
 
 
-
+figure
 l_in1 = [.05 .08 .1];
 c_1 = [.58 .62 .67];
 
@@ -53,7 +53,7 @@ opt2 = .00733;
 
 
     %max_in_lift = ex_mult(index1) * bore; %meter
-    max_in_lift = .00733 %meter
+    max_in_lift = .007 %meter
     max_ex_lift = .008459 % meter
   
   
@@ -104,13 +104,19 @@ opt2 = .00733;
     % 2 times 
 
     
-ex_mult = linspace(.22, .37, 10)
+%ex_mult = linspace(.27, .37, 10)*bore;
+%ex_mult = [.02 ,  .022,  .024,  .026]
+ex_mult = [ .0165 , .0185, .0205, .0225]
 for index1 = 1:length(ex_mult)
-    %D_in = .333 * bore;
+    D_in = .026;
     %D_ex = .29 * bore ;
 
-    D_in = .026;
-    D_ex = .0225 ;
+    %D_in = .026;
+    %D_in = ex_mult(index1);
+    
+    
+    D_ex = ex_mult(index1)
+    %D_ex = .0225 ;
 
     DS_in = .21 * D_in;
     DS_ex = .24 * D_ex;
@@ -234,6 +240,7 @@ for index1 = 1:length(ex_mult)
     %N = 800: 25: 10000;
     %N = 800:25:10000;
     N = 800:100:9400;
+    %N = 800:100:10000;
     %N = 5000
     for j = 1 : length(N)
         V_eff(ind) = 1;
@@ -410,16 +417,22 @@ for index1 = 1:length(ex_mult)
         %m_dot * temp * dt + temp in * mass
     end
 
-        figure
+        
         hold on
         plot(N, V_eff)
-        plot(N, veff1)
-        plot(N, veff2)
+        %plot(N, veff1)
+        %plot(N, veff2)
         grid 
-        s = sprintf('Volumetric Efficency vs RPM for Din = %.5f', D_ex);  
-        title(s)
-        legend('Total', 'Exhuast', 'Intake')
+        %s = sprintf('Volumetric Efficency vs RPM for Din = %.5f', D_in);  
+        %title('Volumetric Efficency vs RPM Varying Intake Diameter')
+        legend( '.02', '.022',  '.024', '.026')
 
+        title('Volumetric Efficency vs RPM Varying Exhuast Diameter')
+        xlabel('RPM')
+        ylabel('Volumetric Efficiency')
+        %legend('.0165',  '.0185',  '.0205',  '.0225')
+        
+        
         [max_v_eff(index1), max_ind(index1)] = max(V_eff)
         max_v_eff_ex(index1) = max(veff1)
         max_v_eff_in(index1) = mean(veff2)
@@ -439,9 +452,11 @@ figure
 %plot(m_lift_ex, max_v_eff_in)
 hold on
 %plot(m_lift_ex, max_v_eff_ex)
-plot(m_lift_ex, AOC)
+plot(ex_mult, AOC)
 %plot(m_lift_ex, N(max_ind))
 %plot(m_lift_ex, max_v_eff)
-legend('In', 'ex', 'total')
-title('all three vs lift')
+%legend('In', 'ex', 'total')
+title('Area Under Volumetric Efficiency Curve vs Exhuast Diameter')
+xlabel('Exhuast Diameter (m)')
+ylabel('Area Under Volumetric Efficiency Curve')
 

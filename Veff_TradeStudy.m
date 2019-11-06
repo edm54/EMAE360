@@ -53,9 +53,12 @@ opt1 =  .00719;
 opt2 = .00733;
 
 ex_mult = linspace(.005, .0085, 5)
+ex_mult = [.0045 .0055 .0065  .0075 .0085]
 for index1 = 1:length(ex_mult)
     %max_in_lift = ex_mult(index1) * bore; %meter
-    max_in_lift = .00733 %meter
+    max_in_lift = .007 %meter
+    
+    max_in_lift = ex_mult(index1)
     max_ex_lift = .008459 % meter
   
     %%max_v_lift = .10 * bore; 
@@ -415,14 +418,16 @@ for index1 = 1:length(ex_mult)
         [max_v_eff(index1), max_ind(index1)] = max(V_eff)
         max_v_eff_ex(index1) = max(veff1)
         max_v_eff_in(index1) = mean(veff2)
-        m_lift_ex(index1) = max_ex_lift
+        m_lift_ex(index1) = max_in_lift
         AOC(index1) = trapz(N,V_eff)
 %        disp(ex_mult(index1))
 %        disp(max(V_eff))
 %        disp(max(veff1))
 %        disp(max(veff2))
-       legend('0.005','0.0059','0.0068','0.0076','0.00845')
-       title('Volumetric Efficiency vs Intake Valve Lift')
+
+       legend('.005',  '.006', '.007', '.008', '.009')
+       legend('.0045', '.0055', '.0065', '.0075',   '.0085')
+       title('Volumetric Efficiency vs Exhuast Valve Lift')
        xlabel('RPM')
        ylabel('Volumetric Efficiency')
        s = sprintf('For max_lift = %.5f, V total = %.5f, V Ex = %.5f, V In = %.5f', max_ex_lift, max(V_eff), max(veff1), max(veff2))  
@@ -437,6 +442,13 @@ hold on
 plot(m_lift_ex, AOC)
 %plot(m_lift_ex, N(max_ind))
 %plot(m_lift_ex, max_v_eff)
-legend('In', 'ex', 'total')
-title('all three vs lift')
+%legend('In', 'ex', 'total')
+title('Area Under Volumetric Efficiency Curve vs Exhuast Lift')
 
+
+%%
+figure 
+plot(theta,Am_in .* CD_in) 
+hold on
+plot(theta,Am_ex .* CD_ex) 
+title('Min Area * Discharge Coefficient vs. Crank Angle')

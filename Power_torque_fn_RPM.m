@@ -15,6 +15,11 @@ Cv = Cp-R;
 %Engine Parameters
 Qlhv = 44e6; %j/kg from Heywood App D
 f = 14.7; % air to fuel mass ratio
+equivolence_ratio = 1.0
+
+% Equivolence Ratio * Ideal Air Fuel 
+fuel_air = 14.7/equivolence_ratio
+
 C = 6; % number of cylinders
 D = .0015; %Total Displacement, m^3
 
@@ -46,6 +51,8 @@ T(2) = Tcomp(length(Tcomp));
 if f <= 14.7
     nc = 0.95;
 end
+
+combustion_eff = combustionEff(equivolence_ratio)
 
 T(3) = 2868.97; %K, from CEA
 rho(3) = rho(2);
@@ -85,8 +92,12 @@ nt = 1-(T(4)-T(1))/(T(3)-T(2));
 RPM = 5000;
 D_cc = 1500;
 
-Mf = Ma/f;
+%Mf = Ma/f;
+Mf = Ma/fuel_air;
 Qin = Mf * Qlhv;
+
+%q_dim = Qin/(P(1) * 
+
 S = 2000; %cM/sec
 N = RPM/60; %rev/sec
 stroke = S/(2 * N); %cM
@@ -105,16 +116,16 @@ i = 1;
 %% Mechanical eff
 
 stroke = stroke / 100;
-RPM = [2100 9000];
+RPM = [2100 9400];
 mech_eff = [ .9 .75];
 %maximum rpm
 Nmax = 7000;
 
 stroke = stroke / 100;
 
-revs = 800:25:10000
+revs = 800:25:9400
 
-for N = 800:25:10000
+for N = 800:25:9400
     c = 6; % number of cylinder
 %{
     Ubar = 2*(stroke) * N/60;
@@ -130,8 +141,8 @@ for N = 800:25:10000
     f = A * t;
     Pf(i) = 1.5 * c * Ubar * f;
     %}
-    %RPM = [2100 9400];
-    RPM = [2100 10000];
+    RPM = [2100 9400];
+    %RPM = [2100 10000];
     %mech_eff = [ .9 .75];  
     %mech_eff = [ .8 .75];  
     mech_eff = [ .9 .75];  
@@ -142,7 +153,8 @@ for N = 800:25:10000
     end
     Power(i) = Wt * N/120;
     P_rate(i) = .8 * Power(i); 
-    P_specific(i) = V_eff(i) * mechanical_eff* Ws * N/120;
+    efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
+    P_specific(i) = efficiency(i) * Ws * N/120;
     P_cylinder(i) = P_specific(i) * Ma;
     P_total(i) = P_cylinder(i) * C;
     imep(i) = P_total(i)/1000*2*10^3/(D*1000*(N/60));
