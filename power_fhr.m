@@ -134,8 +134,12 @@ equivolence_ratio = 1.1
         Qin = combustion_eff * Mf(i) * Qlhv; 
         Vd = ((pi*bore^2*stroke)/4); %meter cubes
         V1  = Vd/(1-(1/rc));
+
         Q(i) =  Qin /(p(1)*V1);
         net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
+
+        net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0);
+
 
         %%
         Wt(i) = net_work(i) * (p(1)*V1);
