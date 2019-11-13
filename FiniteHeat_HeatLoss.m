@@ -1,5 +1,6 @@
 %Motored Engine
 clear
+pi = 3.142;
 r = 10;
 T1 = 300; %K 
 P1 = 101325; %Pa
@@ -191,7 +192,6 @@ title("Heat transfer coefficient vs Crank Angle")
 
 
 %% 
-
 function [fy,ht,hflux] = integrate_ht(theta,thetae,fy)
     [ht,hflux] = values(theta,fy);
     [tt,yy] = ode23(@rates,[theta thetae],fy);
