@@ -105,18 +105,20 @@ opt2 = .00733;
 
     
 %ex_mult = linspace(.27, .37, 10)*bore;
-%ex_mult = [.02 ,  .022,  .024,  .026]
-ex_mult = [ .0165 , .0185, .0205, .0225]
+%ex_mult = [.02 ,  .022,  .024,  .026 .028 ]
+ex_mult = [ .0165 , .0185, .0205, .0225];
 for index1 = 1:length(ex_mult)
     D_in = .026;
+    %D_in = ex_mult(index1)
     %D_ex = .29 * bore ;
 
     %D_in = .026;
     %D_in = ex_mult(index1);
     
     
-    D_ex = ex_mult(index1)
-    %D_ex = .0225 ;
+    %D_ex = ex_mult(index1)
+    D_ex = .0225 ;
+    D_ex = ex_mult(index1);
 
     DS_in = .21 * D_in;
     DS_ex = .24 * D_ex;
@@ -425,8 +427,9 @@ for index1 = 1:length(ex_mult)
         grid 
         %s = sprintf('Volumetric Efficency vs RPM for Din = %.5f', D_in);  
         %title('Volumetric Efficency vs RPM Varying Intake Diameter')
-        legend( '.02', '.022',  '.024', '.026')
-
+        %legend( '.02', '.022',  '.024', '.026', '.028')
+        legend( '.02', '.022',  '.024', '.026', '.028')
+        legend( '.0165' , '.0185', '.0205', '.0225')
         title('Volumetric Efficency vs RPM Varying Exhuast Diameter')
         xlabel('RPM')
         ylabel('Volumetric Efficiency')

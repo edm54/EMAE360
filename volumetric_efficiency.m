@@ -2,23 +2,36 @@ function [V_eff] = volumetric_efficiency(N)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
+% all
+%close all
+%% Prepare Pllots
+set(0, 'DefaultAxesFontWeight', 'normal', ...
+      'DefaultAxesFontSize', 18, ...
+      'DefaultAxesFontAngle', 'normal', ... 
+      'DefaultAxesFontWeight', 'normal', ... 
+      'DefaultAxesTitleFontWeight', 'bold', ...
+      'DefaultAxesTitleFontSizeMultiplier', 1.2) ;
+set(groot,'defaultLineLineWidth',3)
+
 bore = 7.045/100;
 r_bs =  1.1;
 stroke = bore/r_bs;
-max_in_lift = .007 %meter
-max_ex_lift = .008459 % meter
+%max_in_lift = .12 * bore; %meter
+%max_ex_lift = .12 * bore;
+max_in_lift = .007; %meter
+max_ex_lift = .008459; % meter
 
-theta = [-360 : .25: 360];
+theta = [-360 : .1: 360];
 y1 = -1*(theta.^2 -220*theta - 1125);
 
-open_in = -5
-in_dur = 220
-close_in = in_dur + open_in
+open_in = -5;
+in_dur = 220;
+
+close_in = in_dur + open_in;
 intake_lift = -1 * (theta - open_in).* (theta - close_in); 
 
-
-open_ex = -220
-ex_dur = 230
+open_ex = -220;
+ex_dur = 230;
 close_ex = ex_dur + open_ex;
 
 exhuast_lift = -1 * (theta - open_ex).* (theta - close_ex); 
@@ -37,47 +50,25 @@ for i = 1:length(intake_lift)
     end
 end
 
-
-%%
-%(theta - open) * (theta - close)
-%find max and normalize it
-%{
-max_y =max(y1);
-% Recreating Plot from Heywood 225
-intake_lift = -(max_in_lift/max_y)*(theta.^2 -220*theta - 1125);
-
+plot(theta, exhuast_lift*1000);
 hold on
-y2 = -1.*(theta.^2 + 215*theta - 2250);
-max_2 = max(y2);
+plot(theta,intake_lift*1000);
+title('Intake Valve Lift as a function of crank angle')
+xlabel('Crank Angle')
+ylabel('Lift (mm)')
+ylim([0,10]);
+legend('Exhuast valve lift','Intake valve lift')
 
-
-exhuast_lift = -1 * (max_ex_lift/max_2) .*(theta.^2 + 215*theta - 2250);
-for i = 1:length(intake_lift)
-    if intake_lift(i) < 0
-        intake_lift(i) = 0;
-    end
-    if exhuast_lift(i) < 0
-        exhuast_lift(i) = 0;
-    end
-end
-%}
-
-%%
-% Look at 5000 hieght and AOC 
-% Max areas:
-   % In: 2.6 cm
-   % Ex: 2.25 cm
-   % Min is 1 cm 
-   % .8459 cm of lift
-    % floor of .1 cm
+%set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+%saveas(gcf,'Valve Lift vs Crank.png')
     
 % Fuerg 5.11
 % 2 times 
-% D_in = .37 * bore;
-% D_ex = .32 * bore ;
+ %D_in = .33 * bore;
+ %D_ex = .29 * bore ;
 
-D_in = .026;
-D_ex = .0225 ;
+ D_in = .026;
+ D_ex = .0225 ;
 %D_ex = .019 ;
 
 DS_in = .21 * D_in;
@@ -131,15 +122,32 @@ for i = 1: length(exhuast_lift)
     end
     
 end
-% Or flat at .8 percent
+% Or flat at .8 percent 
+figure
+hold on 
+
+plot(theta,Am_in)
+plot(theta, Am_ex)
+
+legend('Intake', 'Exhuast')
+title('Flow Area (m^2) as a Function of Crank Angle')
+legend('Intake Flow Area', 'Exhuast Flow Area')
+ylabel('Flow Area (M^2)')
+xlabel('Crank Angle')
+%set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+%saveas(gcf,'Flow Area vs Crank.png')
+figure
 
 %% ex
 cd_ex = .5 + .5 .* [  1.2 1.5 1.6 1 .4 .2 0]./3.2;
 
+
 lv_dv_ex = [.1 .15 .2 .25 .3 .35 .4];
+plot(lv_dv_ex, cd_ex);
 fit = polyfit(lv_dv_ex, cd_ex,  3);
 val = polyval(fit, .1:.01:.3);
-
+hold on
+plot(.1:.01:.3, val);
 ylim([0 1]);
 xlim([0 .3]);
 
@@ -160,12 +168,21 @@ c_4 = [.68 .55 .53 .48];
 
 fit1 = polyfit(l_in1, c_1,  2);
 val1 = polyval(fit1, .05:.01:.1);
+plot(.05:.01:.1, val1);
+hold on
 fit2 = polyfit(l_in2, c_2,  1);
 val2 = polyval(fit2, l_in2);
+plot(l_in2, val2);
+
 fit3 = polyfit(l_in3, c_3,  2);
 val3 = polyval(fit3, .11:.01:.18);
+plot(.11:.01:.18, val3);
+
 fit4 = polyfit(l_in4, c_4,  1);
 val4 = polyval(fit4, .18:.01:.35);
+plot(.18:.01:.35, val4);
+
+title('Intake Cd vs LV/DV')
 %%
 
 
@@ -190,37 +207,36 @@ for i = 1: length(intake_lift)
     end
     
 end 
+figure
+plot(theta, CD_in)
+hold on
+plot(theta, CD_ex)
+title('CD as a Function of Crank Angle')
+xlabel('Crank angle')
+ylabel("Discharge Coeff")
+legend('Intake', 'Exhuast')
 %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 %saveas(gcf,'CD vs Crank.png')
 
 %% Exhuast
+ind = 1;
 
 %N = 800:25:9400;
-%N = 800:100:15000;
-ind = 1
+
+
 for j = 1 : length(N)
     V_eff(ind) = 1;
-    %choke(ind) = 0
-    %reverse(ind) = 0
     To = 300 ;%k
     Tf = 1.9286e+03 ;%k
     gamma = calc_gamma(To);
     P_external_e = 100000;
-    %P_external_e = 50000;
-    %P_external_e = 101325
-    % 101325; %pa TODO TRY
     P_external_in = 101325;
-    %P_external_in = 651325;
     R = 287;
     Co = sqrt(gamma * R * To);
     P_cylinder_e = 6.6417e+05; 
     P_cylinder_e = 4.6417e+05;% Pascals
-    %P_cylinder_e = 1.5e+05; % Pascals
     rho_cylinder = P_cylinder_e/(R * To); %Kg/m3
     Ma = 3.335683867042752e-04; %Kg
-    % D_ex is diamter
-    %x = [-360 : 1: 360];
-    theta = [-360 : .25 :  360];
     time = (theta./360) .* (1/(N(j)/60)); %seconds
     for i = 1:length(theta)
         v(i) = calc_volume(theta(i));
@@ -249,34 +265,19 @@ for j = 1 : length(N)
         in_open = -5;
         if theta(i) < ex_close
             r1(i) = P_external_e/pressure(i);
-            if pressure(i) > P_external_e 
-                 
-                %could make rho consrtant i gues?
+            %  Check flow into cylinder
+            if pressure(i) > P_external_e  
                 if (min_area_ex > 0)
-                    %m_dot(i) = -1*Cd * rho(i) * min_area * Co * sqrt((2/(gamma-1)) * ((P_external_e/pressure(i))^(2/gamma) - ...
-                    %(P_external_e/pressure(i))^((gamma+1)/gamma))) ;
                     m_dot(i) = m_dot(i) + -2 * (((Cd_ex * min_area_ex * pressure(i))/sqrt(R * temp(i)))...
                         * r1(i)^(1/gamma) * sqrt(((2 * gamma)/(gamma - 1)) * (1 - r1(i)^((gamma -1)/gamma))));
                 else
                     m_dot(i) = 0;
                 end
-
-                % Choked flow?
-                %velocity(i) = abs(m_dot(i))/(rho(i) * min_area_ex);
-                %sound_speed(i) = sqrt(gamma * R *  temp(i));
-
-                %if velocity(i) > sound_speed(i)
-                if r1(i) <= (2/(gamma + 1))^(gamma/(gamma - 1))/15 && m_dot(i)<0
-                    %m_dot(i) = -1 * Cd * rho_cylinder * min_area * Co *(2/(gamma + 1))...
-                       % ^ ((gamma + 1)/(2 *(gamma - 1)));
+                
+                % Check choked flow
+                if r1(i) <= (2/(gamma + 1))^(gamma/(gamma - 1))/15 && m_dot(i)<0                   
                      m_dot(i) = -2 * Cd_ex * pressure(i) * min_area_ex * (gamma /Co) *(2/(gamma + 1))...
-                        ^ ((gamma + 1)/(2 *(gamma - 1)));
-
-                   %m_dot(i) = -1 * ((CD_ex(i) * min_area * P_external_e)/sqrt(R * temp(i)))...
-                   % *sqrt(gamma) * (2/(gamma + 1))^((gamma + 1)/(2*(gamma - 1))) ;
-                    %%disp('choke')
-                    %choke(ind) = choke(ind) + 1;
-                    %disp(N(j))
+                        ^ ((gamma + 1)/(2 *(gamma - 1)));  
                 end
             else
                 
@@ -285,70 +286,38 @@ for j = 1 : length(N)
                     m_dot(i) = 2 * Cd_ex * rho(i) * min_area_ex * Co * sqrt((2/(gamma-1))...
                         * ((P_external_e/pressure(i))^(-2/gamma) - ...
                     (r1(i))^(-1*(gamma+1)/gamma)));
-                    %reverse(ind) = reverse(ind) + 1;
-                    %disp('reverse')
                 else
                     m_dot(i) = 0;
                 end
             end
             
-        end
-        
-%             
-%         elseif 
-%             %overlap
-%             % overlaps -5 and 15
-%             same as above
-%             may not needif statement   
-            
+        end            
         if theta(i) >= in_open 
-            %m_dot(i) = 0;
+               
+            % Track Volumetric Efficicency
             if theta(i) == -5
                  mass_start = mass(i);
             end
             
             r2(i) = pressure(i)/P_external_in;
-            % flow in
-            %if min_area_in <= 0
-                 %m_dot(i) = m_dot(i);
-        %else
+            % Flow into the cylinder
             if pressure(i) < P_external_in
-                 
                 m_dot(i) = m_dot(i) + 2 * (((Cd_in * min_area_in * P_external_in)/sqrt(R * temp(i)))...
                     * r2(i)^(1/gamma) * sqrt(((2 * gamma)/(gamma - 1)) * (1 - r2(i)^((gamma -1)/gamma))));
                     
-                    %disp('not reverse ')
-                    %disp(theta(i))
-                % Choked flow?
-                %velocity(i) = abs(m_dot(i))/(rho(i) * min_area_ex);
-                %sound_speed(i) = sqrt(gamma * R *  temp(i));
-
-                %if velocity(i) > sound_speed(i)
-                if r2(i) <= ((2/(gamma + 1))^(gamma/(gamma - 1)))/15 
-                    %m_dot(i) = -1 * Cd * rho_cylinder * min_area * Co *(2/(gamma + 1))...
-                       % ^ ((gamma + 1)/(2 *(gamma - 1)));
+                % Check choked flow
+                if r2(i) <= ((2/(gamma + 1))^(gamma/(gamma - 1)))/15            
                      m_dot(i) =  m_dot(i) + 2  * Cd_in * rho_cylinder * min_area_in * (gamma /Co) *(2/(gamma + 1))...
                         ^ ((gamma + 1)/(2 *(gamma - 1)));
-                    
-                   choke(ind) = choke(ind) + 1;
-                   %m_dot(i) = -1 * ((CD_ex(i) * min_area * P_external_e)/sqrt(R * temp(i)))...
-                   % *sqrt(gamma) * (2/(gamma + 1))^((gamma + 1)/(2*(gamma - 1))) ;
-                    %disp('choke')
-                    %disp(j)
                 end
             else
                 % Flow out of cylinder into inlet
                     m_dot(i) = m_dot(i) + -2 * Cd_in * rho(i) * min_area_in * Co * sqrt((2/(gamma-1))...
-                        * ((r2(i))^(-2/gamma) - (r2(i))^(-1*(gamma+1)/gamma)));
-                    %reverse(ind) = reverse(ind) + 1;
-                    %disp('reverse')
-                    %disp(N(j))
+                        * ((r2(i))^(-2/gamma) - (r2(i))^(-1*(gamma+1)/gamma))); 
             end
-            %m_dot(i) = 0;
-            
         end   
-
         d_mass_d_time = m_dot(i);
+        % Update mass in cylinder
         mass(i + 1) = max(mass(i) + delta_t * d_mass_d_time, .000001);
         if mass(i+1) < 0
             mass(i+1) = .00001;
@@ -364,6 +333,7 @@ for j = 1 : length(N)
        end
 
     end
+    % Calculate individual Volumetric Efficiencies
     veff2(ind) =  mass(end)/mass(1);
     veff1(ind) = (1 - mass_start/mass(1));
     V_eff(ind) = V_eff(ind) * veff1(ind) * veff2(ind);
@@ -371,3 +341,91 @@ for j = 1 : length(N)
     ind = ind + 1;
     %m_dot * temp * dt + temp in * mass
 end
+
+    figure
+    hold on
+    plot(N, V_eff)
+    plot(N, veff1)
+    plot(N, veff2)
+    grid 
+    title('Volumetric Efficency vs RPM')
+    legend('Total', 'Exhuast', 'Intake')
+    
+    
+    
+   disp(max(V_eff))
+   disp(max(veff1))
+   disp(max(veff2))
+    
+    %%
+    
+    figure
+    plot(theta, mass)
+    title('Air mass in cylinder during exhuast as a function of crank angle')
+    xlabel('Crank Angle')
+    ylabel('Mass of Air (kg)')
+    
+    figure
+    plot(theta, temp)
+    title('temp')
+    %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+    %saveas(gcf,'Air mass exhaust vs crank.png')
+
+    figure
+    plot(theta(1:end-1), m_dot)
+    title('M dot during exhuast as a function of crank angle')
+    %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+    %saveas(gcf,'M dot vs Crank Angle.png')
+
+    
+ %%   
+%     %U = sqrt(2* gamma/(gamma - 1) * (Po/rho0) * (1 - (Pv/Po)^((gamma - 1)/gamma)))
+% 
+%     %plot( theta(1 :720), rho)
+%     %plot( theta, mass)
+%     figure
+%     plot(theta(1:720), sound_speed)
+%     hold on
+%     plot(theta(1:720), velocity)
+%     title('sound speed & velo vs theta')
+%%
+%     figure
+%     plot(theta(1:end-1), rho)
+%     title('rho vs theta')
+% 
+%   
+% %%
+%     figure
+%     plot( theta, pressure)
+%     title('Pressure of cylinder during exhuast as a function of crank angle')
+%     line([theta(1),theta(end)],[101000,101000])
+    %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+    %saveas(gcf,'P exhuast vs crank.png')
+%%
+
+%     figure
+%     plot(theta, mass)
+%     title('Air mass in cylinder during exhuast as a function of crank angle')
+%     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+%     %saveas(gcf,'Air mass exhaust vs crank.png')
+% 
+%     figure
+%     plot(theta(1:end-1), m_dot)
+%     title('M dot during exhuast as a function of crank angle')
+%     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+%     %saveas(gcf,'M dot vs Crank Angle.png')
+
+
+ 
+ %%
+ %N = 800: 25: 10000
+figure
+hold on
+plot(N, V_eff)
+plot(N, veff1)
+plot(N, veff2)
+grid 
+title('Volumetric Efficency vs RPM')
+legend('Exhuast', 'Intake', 'Total')
+    %}
+   
