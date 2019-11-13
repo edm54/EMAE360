@@ -1,41 +1,11 @@
 %Returns the cumulative work for one cylinder in kJ, given a (volumetric
 %efficiency, equivalence ratio, RPM).
-function Wnet = FiniteHeatWoschni(nv,eq,N)
+function Wnet = FiniteHeatWoschni(Qin,N,ma,plt)
 
 %Motored Engine
 r = 10;
 T1 = 300; %K 
 P1 = 101325; %Pa
-V1 = 0.000275; %m^3
-R = 287; %J/kg K
-
-thetai = 0;
-mstep = 0.001;
-thetaf = 360;
-mprops.theta = thetai:mstep:thetaf;
-mprops.theta = mprops.theta.';
-mprops.vol = zeros(length(mprops.theta),1);
-mprops.press = zeros(length(mprops.theta),1);
-mprops.temp = zeros(length(mprops.theta),1);
-mprops.rho = zeros(length(mprops.theta),1);
-mgamma = zeros(length(mprops.theta),1);
-
-mprops.vol(1) = nondimV(thetai, r)*V1;
-mprops.press(1) = 1;
-mprops.temp(1) = T1;
-k = P1*(V1)^(calc_gamma(T1));
-mprops.rho(1) = P1/(287*T1);
-ma = mprops.rho(1)*(mprops.vol(1));
-
-for i = 2:length(mprops.theta)
-    mgamma(i) = calc_gamma(mprops.temp(i-1));
-    [mprops.vol(i),~] = nondimV(mprops.theta(i),r);
-    mprops.vol(i) = mprops.vol(i)*V1;
-    mprops.rho(i) = ma / (mprops.vol(i));
-    mprops.press(i) = k / (mprops.vol(i))^(mgamma(i));
-    mprops.temp(i) = mprops.press(i)/(mprops.rho(i)*R);
-end
-
 
 % Real Engine Cycle with Heat Transfer from the Cylinder
 step = 1; %crankangle interval for calculation
@@ -46,10 +16,6 @@ NN = (thetaf - thetai)/step + 1;
 thetas = 160; %start of heat release (deg)
 thetad = 60; %duration of heat release (deg)
 
-af = 14.7/eq;
-
-ma = 0.000336*nv; %kg
-mf = ma/af;
 b = 0.0705; %Bore m
 s = 0.0641; %Stroke m
 Ao = 3850/(1000)^2; %Total Area of Combustion chamber at TDC, m
@@ -60,11 +26,8 @@ P1 = 101.325; %Initial Pressure, kPa
 T1 = 300; %K
 Tw = 500; %K, inside wall temperature
 Tbar = Tw / T1;
-Qlhv = 44000000; %J/kg
-nc = 0.95;
-Qin = mf*Qlhv*nc/(1000*P1*V1); %Dimensionless total Heat release
-omega = N*pi/60; %rps
-Ubar = 2*s*N/60; %Mean piston speed (m/s)
+omega = N.*pi/60; %rps
+Ubar = 2.*s.*N./60; %Mean piston speed (m/s)
 B = 4*r/(b*(Ao/Vo)-4); %dimensionless volume
 
 prop.theta = thetai:step:thetaf;
@@ -109,54 +72,81 @@ work = P1.*V1 .* prop.work; %kJ
 heatloss = P1.*V1.*prop.heatloss; %kJ
 Wnet = work(NN);
 
-mprops.press = mprops.press ./ (10^6);
-figure
-hold on
-plot(prop.theta,prop.press)
-plot(mprops.theta,mprops.press)
-ylabel("Pressure, MPa")
-xlabel("Angle, rad")
-title("Pressure vs Crank Angle")
-legend("Actual Pressure", "Motored Pressure")
-hold off 
+if plt>0
+    thetai = 0;
+    mstep = 0.001;
+    thetaf = 360;
+    mprops.theta = thetai:mstep:thetaf;
+    mprops.theta = mprops.theta.';
+    mprops.vol = zeros(length(mprops.theta),1);
+    mprops.press = zeros(length(mprops.theta),1);
+    mprops.temp = zeros(length(mprops.theta),1);
+    mprops.rho = zeros(length(mprops.theta),1);
+    mgamma = zeros(length(mprops.theta),1);
 
-figure
-plot(prop.theta,bar)
-ylabel("Pressure, bar")
-xlabel("Angle, rad")
-title("Pressure vs Crank Angle")
+    mprops.vol(1) = nondimV(thetai, r)*V1;
+    mprops.press(1) = 1;
+    mprops.temp(1) = T1;
+    k = P1*(V1)^(calc_gamma(T1));
+    mprops.rho(1) = P1/(287*T1);
+    for i = 2:length(mprops.theta)
+        mgamma(i) = calc_gamma(mprops.temp(i-1));
+        [mprops.vol(i),~] = nondimV(mprops.theta(i),r);
+        mprops.vol(i) = mprops.vol(i)*V1;
+        mprops.rho(i) = ma / (mprops.vol(i));
+        mprops.press(i) = k / (mprops.vol(i))^(mgamma(i));
+        mprops.temp(i) = mprops.press(i)/(mprops.rho(i)*R);
+    end
+    
+    mprops.press = mprops.press ./ (10^6);
+    figure
+    hold on
+    plot(prop.theta,prop.press)
+    plot(mprops.theta,mprops.press)
+    ylabel("Pressure, MPa")
+    xlabel("Angle, rad")
+    title("Pressure vs Crank Angle")
+    legend("Actual Pressure", "Motored Pressure")
+    hold off 
 
-figure
-plot(prop.theta,prop.temp)
-ylabel("Temperature, K")
-xlabel("Angle, rad")
-title("Temperature vs Crank Angle")
-%{
-figure
-plot(prop.theta,gam)
-ylabel("Gamma")
-xlabel("Angle, rad")
-title("Gamma vs Crank Angle")
-%}
+    figure
+    plot(prop.theta,bar)
+    ylabel("Pressure, bar")
+    xlabel("Angle, rad")
+    title("Pressure vs Crank Angle")
 
-figure
-plot(prop.theta,prop.heatflux)
-ylabel("q'', MW/m^2")
-xlabel("Angle, rad")
-title("Heat loss vs Crank Angle")
+    figure
+    plot(prop.theta,prop.temp)
+    ylabel("Temperature, K")
+    xlabel("Angle, rad")
+    title("Temperature vs Crank Angle")
+    %{
+    figure
+    plot(prop.theta,gam)
+    ylabel("Gamma")
+    xlabel("Angle, rad")
+    title("Gamma vs Crank Angle")
+    %}
 
-figure
-plot(prop.theta,prop.htcoeff)
-ylabel("h")
-xlabel("Angle, rad")
-title("Heat transfer coefficient vs Crank Angle")
+    figure
+    plot(prop.theta,prop.heatflux)
+    ylabel("q'', MW/m^2")
+    xlabel("Angle, rad")
+    title("Heat loss vs Crank Angle")
 
-figure
-plot(prop.theta,work,prop.theta,heatloss)
-legend('Work','Heatloss')
-xlabel('Crank Angle, deg')
-ylabel('Cumulative Work and Heat Loss, kJ')
-title('Cumulative Work and Heat Loss vs Crank Angle')
+    figure
+    plot(prop.theta,prop.htcoeff)
+    ylabel("h")
+    xlabel("Angle, rad")
+    title("Heat transfer coefficient vs Crank Angle")
+
+    figure
+    plot(prop.theta,work,prop.theta,heatloss)
+    legend('Work','Heatloss')
+    xlabel('Crank Angle, deg')
+    ylabel('Cumulative Work and Heat Loss, kJ')
+    title('Cumulative Work and Heat Loss vs Crank Angle')
+end
 
     function [fy,ht,hflux,T] = integrate_ht(theta,thetae,fy)
         [ht,hflux,T] = values(theta,fy);

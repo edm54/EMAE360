@@ -142,7 +142,7 @@ for equivolence_ratio = .9:.1:1.3
         Vd = ((pi*bore^2*stroke)/4); %meter cubes
         V1  = Vd/(1-(1/rc));
         Q(k,i) =  Qin /(p(1)*V1);
-        net_work(k,i) = 6 * FiniteHeatRelease(Q(k,i), N(i), Ma(k,i), 0);
+        net_work(k,i) = 6 * FiniteHeatWoschni(Q(k,i), N(i), Ma(k,i), 0);
 
         %%
         Wt(k,i) = net_work(k,i) * (p(1)*V1);
