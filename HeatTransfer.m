@@ -20,19 +20,17 @@ k=151;
 N=floor(b/(S+tf))+1;
 
 term = (0.0707-0.002)/2;
-rc = b/2;
-rb = 0.0705/2+term;
-ra = optimumFin(t,rb,b/2,k,hc);
+rc = b/2; %Outside of cylinder
+rb = 0.0705/2+term; %minor axis radius of fins
+ra = optimumFin(t,rb,b/2,k,hc); %major axis Radius of Fins 
 
-r1 = b/2 + thick; %Outside of cylinder
-r2 = r1+L; %Outside Radius of Fins 
 Ag = 2*pi*s*(b/2)^2;
 Q=hflux*Ag;
 Rw=log(r2/r1)/(2*pi*thick*k);
 
 Ts1=Tw-Q*Rw;
 Ts2=0;
-v = 6; %m/s
+v = 3; %m/s
 
 if S/b >= 0.14
     K = 0.36;
@@ -42,10 +40,10 @@ else
     B = 0.27;
 end
 while abs(Ts1-Ts2) > 0.001
-    v = v+0.000001;
+    v = v+0.01;
     hc = CoolingHTC(K,B,v,t,S); %Heat Transfer Coefficient between Fin and air
     k = 151; %Thermal conductivity of fins, W/(m K)
-    m = sqrt(2*hc/(k*t));
+    m = sqrt(hc/(k*t));
     ra = optimumFin(t,rb,rc,k,hc);
     nf = FinEff(ra,rb,rc,m);
     Af=2*pi*(ra*rb-rc^2)+2*pi*r2*tf;
