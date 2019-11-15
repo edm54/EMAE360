@@ -3,13 +3,14 @@ This program finds the required velocity for aircooling cylinders. From
 this, the required power to accelerate this amount of air is calculated as
 well. 
 %}
+clear
 b = 0.0705; %m, bore
 s = 0.0641; %m, stroke
 thick = 0.01; %m, cylinder thickness, confirm with team
 
-Tw=400; %K, a set value. 
+Tw=530; %K, a set value. 
 To=300; %K, atmospheric temperature
-hflux=0.42027e6; %W/m^2
+hflux=0.3165e6; %W/m^2
 
 %Fin characteristics 
 L=0.12/2; %cylinder spacing divided by two
@@ -24,9 +25,14 @@ rc = b/2; %Outside of cylinder
 rb = 0.0705/2+term; %minor axis radius of fins
 ra = optimumFin(t,rb,b/2,k,hc); %major axis Radius of Fins 
 
-Ag = 2*pi*s*(b/2)^2;
+r1=b/2 + thick; %Outside of cylinder
+r2=r1+L; %Outside Radius of Fins 
+Ag=2*pi*s*b;
+Af=(2*pi*(r2^2-r1^2)+2*pi*r2*t)*2;
+At=(N*Af+2*pi*r1*S*(N-1));
+
 Q=hflux*Ag;
-Rw=log(r2/r1)/(2*pi*thick*k);
+Rw=log(r2/r1)/(2*pi*s*k);
 
 Ts1=Tw-Q*Rw;
 Ts2=0;
