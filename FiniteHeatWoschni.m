@@ -95,7 +95,7 @@ if plt>0
         mprops.vol(i) = mprops.vol(i)*V1;
         mprops.rho(i) = ma / (mprops.vol(i));
         mprops.press(i) = k / (mprops.vol(i))^(mgamma(i));
-        mprops.temp(i) = mprops.press(i)/(mprops.rho(i)*R);
+        mprops.temp(i) = mprops.press(i)/(mprops.rho(i)*287);
     end
     
     mprops.press = mprops.press ./ (10^6);
