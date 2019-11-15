@@ -13,26 +13,21 @@ To=300; %K, atmospheric temperature
 hflux=0.3165e6; %W/m^2
 
 %Fin characteristics 
-L=0.12/2; %cylinder spacing divided by two
-tf=0.006; %Thickness of fins
+tf=0.0025; %Thickness of fins
 t=tf/2; %Half thickness of fins, used to calculate m
-S=0.006; %fin spacing
+S=0.0025; %fin spacing
 k=151;
-N=floor(b/(S+tf))+1;
+N=floor((s+.042)/(S+tf))+1; %stroke plus engine block
 
-term = (0.0707-0.002)/2;
+term = (0.0707-0.001)/2;
 rc = b/2; %Outside of cylinder
 rb = 0.0705/2+term; %minor axis radius of fins
-ra = optimumFin(t,rb,b/2,k,hc); %major axis Radius of Fins 
 
-r1=b/2 + thick; %Outside of cylinder
-r2=r1+L; %Outside Radius of Fins 
+r2=rc+thick; %Outside Radius of Fins 
 Ag=2*pi*s*b;
-Af=(2*pi*(r2^2-r1^2)+2*pi*r2*t)*2;
-At=(N*Af+2*pi*r1*S*(N-1));
 
 Q=hflux*Ag;
-Rw=log(r2/r1)/(2*pi*s*k);
+Rw=log(r2/rc)/(2*pi*s*k);
 
 Ts1=Tw-Q*Rw;
 Ts2=0;
@@ -46,14 +41,14 @@ else
     B = 0.27;
 end
 while abs(Ts1-Ts2) > 0.001
-    v = v+0.01;
+    v = v+1;
     hc = CoolingHTC(K,B,v,t,S); %Heat Transfer Coefficient between Fin and air
     k = 151; %Thermal conductivity of fins, W/(m K)
     m = sqrt(hc/(k*t));
     ra = optimumFin(t,rb,rc,k,hc);
     nf = FinEff(ra,rb,rc,m);
-    Af=2*pi*(ra*rb-rc^2)+2*pi*r2*tf;
-    At=N*Af+2*pi*r1*S*(N-1);
+    Af=2*pi*(ra*rb-rc^2);
+    At=N*Af+2*pi*rc*S*(N-1);
     Rf=1/(N*nf*hc*Af);
     Rt=1/(hc*(At-N*Af));
     R1=Rf*Rt/(Rf+Rt);
