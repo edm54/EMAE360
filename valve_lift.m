@@ -19,11 +19,12 @@ stroke = bore/r_bs;
 max_in_lift = .007 %meter
 max_ex_lift = .008459 % meter
 
-theta = [-360 : .25: 360];
+theta = [-360 : .1: 360];
 y1 = -1*(theta.^2 -220*theta - 1125);
 
-open_in = -15
+open_in = -5
 in_dur = 220
+
 close_in = in_dur + open_in
 intake_lift = -1 * (theta - open_in).* (theta - close_in); 
 
@@ -61,11 +62,11 @@ legend('Exhuast valve lift','Intake valve lift')
     
 % Fuerg 5.11
 % 2 times 
-% D_in = .37 * bore;
-% D_ex = .32 * bore ;
+ %D_in = .33 * bore;
+ %D_ex = .29 * bore ;
 
-D_in = .026;
-D_ex = .0225 ;
+ D_in = .026;
+ D_ex = .0225 ;
 %D_ex = .019 ;
 
 DS_in = .21 * D_in;
@@ -279,10 +280,15 @@ for j = 1 : length(N)
             else
                 
                 if (min_area_ex > 0)
+                     %r1(i) = pressure(i)/P_external_e;
                 % Flow into cylinder from exhuast
-                    m_dot(i) = 2 * Cd_ex * rho(i) * min_area_ex * Co * sqrt((2/(gamma-1))...
+                    m_dot(i) = 2*Cd_ex * rho(i) * min_area_ex * Co * sqrt((2/(gamma-1))...
                         * ((P_external_e/pressure(i))^(-2/gamma) - ...
                     (r1(i))^(-1*(gamma+1)/gamma)));
+                
+%                     m_dot(i) = (((Cd_ex * min_area_ex * P_external_e)/sqrt(R * temp(i)))...
+%                         * r1(i)^(1/gamma) * sqrt(((2 * gamma)/(gamma - 1)) * (1 - r1(i)^((gamma -1)/gamma))));
+                
                 else
                     m_dot(i) = 0;
                 end
@@ -391,13 +397,13 @@ end
 %     title('rho vs theta')
 % 
 %   
-% %%
-%     figure
-%     plot( theta, pressure)
-%     title('Pressure of cylinder during exhuast as a function of crank angle')
-%     line([theta(1),theta(end)],[101000,101000])
-    %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
-    %saveas(gcf,'P exhuast vs crank.png')
+
+    figure
+    plot( theta, pressure)
+    title('Pressure of cylinder during exhuast as a function of crank angle')
+    line([theta(1),theta(end)],[101000,101000])
+    set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+    saveas(gcf,'P exhuast vs crank.png')
 %%
 
 %     figure
