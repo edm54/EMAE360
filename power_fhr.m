@@ -13,7 +13,8 @@ set(0, 'DefaultAxesFontWeight', 'normal', ...
 set(groot,'defaultLineLineWidth',3)
 
 rc = 10;
-    
+
+
 % Initial Conditions
 p(1) = 101325;%pa
 T(1) = 294; %k
@@ -89,7 +90,6 @@ equivolence_ratio = 1.1
     p(4) = pcomp(length(pcomp)); %this is an estimate, could use refprop to find actual
     T(4) = Tcomp(length(Tcomp));
 
-    gamma = calc_gamma(T(4));
     stroke = .0641;
     bore = 1.1* stroke; 
     % Initial Conditions
@@ -105,7 +105,7 @@ equivolence_ratio = 1.1
     f = 14.7; % air to fuel mass ratio
 
     % Equivolence Ratio * Ideal Air Fuel 
-    fuel_air = 14.7/equivolence_ratio
+    fuel_air = 14.7/equivolence_ratio;
 
     C = 6; % number of cylinders
     D = .0015; %Total Displacement, m^3
@@ -119,8 +119,21 @@ equivolence_ratio = 1.1
     end
     
     N = 800:100:15000;
+    Ma = zeros(length(N),1);
+    Q = zeros(length(N),1);
+    net_work = zeros(length(N),1);
+    Wt = zeros(length(N),1);
+    Power = zeros(length(N),1);
+    P_rate = zeros(length(N),1);
+    efficiency = zeros(length(N),1);
+    imep = zeros(length(N),1);
+    bmep = zeros(length(N),1);
+    P_hp = zeros(length(N),1);
+    SFC = zeros(length(N),1);
+    SFC_Converted = zeros(length(N),1);
+    Torque = zeros(length(N),1);
     Veff = volumetric_efficiency(N);
-    i = 1
+    i = 1;
     %for N = 800:100:10000
 
     for i = 1:length(N)
@@ -136,20 +149,18 @@ equivolence_ratio = 1.1
         V1  = Vd/(1-(1/rc));
 
         Q(i) =  Qin /(p(1)*V1);
-        net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
+        %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
 
         net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0);
 
 
         %%
-        Wt(i) = net_work(i) * (p(1)*V1);
+        Wt(i) = net_work(i);
         Power(i) = Wt(i) * N(i)/120;
         P_rate(i) = .8 * Power(i); 
         %efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
         efficiency(i) = 1;
         RPM = [2100 15000];
-        %mech_eff = [ .9 .75];  
-        %mech_eff = [ .8 .75];  
         mech_eff = [ .9 .65];  
         if N(i)<= 2100
             mechanical_eff = .9;
@@ -170,7 +181,7 @@ equivolence_ratio = 1.1
 
         %P_hp(k,i) = P_total(i)/745.699872;
        
-        P_hp(i) = efficiency(i) * Power(i)/745.699872;
+        P_hp(i) = efficiency(i) * Power(i)/0.745699872;
         % SFC
         SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
         SFC_Converted(i) = SFC(i) * 3.6e9; %g/Kw-hr
