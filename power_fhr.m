@@ -120,6 +120,7 @@ equivolence_ratio = 1.1
     
     N = 800:100:15000;
     Ma = zeros(length(N),1);
+    Mf = zeros(length(N),1);
     Q = zeros(length(N),1);
     net_work = zeros(length(N),1);
     Wt = zeros(length(N),1);
@@ -150,7 +151,7 @@ equivolence_ratio = 1.1
         Q(i) =  Qin /(p(1)*V1);
         %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
 
-        net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0);
+        net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0); %kJ
 
 
         %%
@@ -183,7 +184,7 @@ equivolence_ratio = 1.1
         % SFC
         SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
         SFC_Converted(i) = SFC(i) * 3.6e9; %g/Kw-hr
-        Torque(i) = 1000*Power(i)/((2*3.1415*N(i)/60));
+        Torque(i) = 1000*Power(i)/((2*3.1415*N(i)/60)); %N*m
 
    
      end
