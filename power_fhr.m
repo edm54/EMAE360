@@ -124,7 +124,6 @@ equivolence_ratio = 1.1
     net_work = zeros(length(N),1);
     Wt = zeros(length(N),1);
     Power = zeros(length(N),1);
-    P_rate = zeros(length(N),1);
     efficiency = zeros(length(N),1);
     imep = zeros(length(N),1);
     bmep = zeros(length(N),1);
@@ -157,7 +156,6 @@ equivolence_ratio = 1.1
         %%
         Wt(i) = net_work(i);
         Power(i) = Wt(i) * N(i)/120;
-        P_rate(i) = .8 * Power(i); 
         %efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
         efficiency(i) = 1;
         RPM = [2100 15000];
