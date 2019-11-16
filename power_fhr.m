@@ -183,7 +183,7 @@ equivolence_ratio = 1.1
         % SFC
         SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
         SFC_Converted(i) = SFC(i) * 3.6e9; %g/Kw-hr
-        Torque(i) = Power(i)/((2*3.1415*N(i)/60));
+        Torque(i) = 1000*Power(i)/((2*3.1415*N(i)/60));
 
    
      end
@@ -208,10 +208,10 @@ xlim([0 15000])
 figure 
 hold on
 
-plot(N, Torque(1,:))
- 
+plot(N, Torque(:,1))
+
 title('Torque vs RPM')
-xlabel('Torque')
+xlabel('Torque, N*m')
 ylabel('RPM')
 
 
