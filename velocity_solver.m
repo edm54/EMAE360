@@ -1,7 +1,7 @@
 %Power Required at a certain Speed
 clear
 Cr = 0.015;
-Cd = 0.4;
+Cd = 0.7;
 M = 300; %kg
 g = 9.81; %m/s^2
 A = 1; % m^2

@@ -31,7 +31,7 @@ figure
 equivolence_ratio = 1.1
 
     % Equivolence Ratio * Ideal Air Fuel 
-    fuel_air = 14.7/equivolence_ratio
+    fuel_air = 14.98/equivolence_ratio
 
     C = 6; % number of cylinders
     D = .0015; %Total Displacement, m^3
@@ -104,28 +104,26 @@ equivolence_ratio = 1.1
     Qlhv = 44e6; %j/kg from Heywood App D
     f = 14.7; % air to fuel mass ratio
 
-    % Equivolence Ratio * Ideal Air Fuel 
-    fuel_air = 14.7/equivolence_ratio
-
     C = 6; % number of cylinders
     D = .0015; %Total Displacement, m^3
 
     % State 1, 
     rho(1) = p(1)/(R*T(1)); %from ideal gas law
-
-    % combustive efficiency, from Heywood p 82
-    if f <= 14.7
-        nc = 0.95;
-    end
     
     N = 800:100:15000;
     Veff = volumetric_efficiency(N);
     i = 1
     %for N = 800:100:10000
-
+    velocity_arr = [30 60 150]
+    velocity_arr = [30  150]
+    velocity_kmhr = velocity_arr * 1.60934
+    velo_rpm = [1500  9400]
+    throttle = 1
     for i = 1:length(N)
         Ws = Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
-        Ma(i) = Veff(i) * (D/C)*(rc/(rc-1)) * rho(1); %Mass of Air in each cylinder, kg
+        %Ma(i) = Veff(i) * (D/C)*(rc/(rc-1)) * rho(1);
+        Ma(i) = min(Veff(i), throttle) * (D/C)*(rc/(rc-1)) * rho(1);%Mass of Air in each cylinder, kg
+        %Ma(i) = (D/C)*(rc/(rc-1)) * rho(1);
         %Ma(k,i) = (D/C)*(rc/(rc-1)) * rho(1);
         D_cc = 1500;
 
@@ -136,15 +134,11 @@ equivolence_ratio = 1.1
         V1  = Vd/(1-(1/rc));
 
         Q(i) =  Qin /(p(1)*V1);
-        net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
-
-        net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0);
-
-
+        net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0); %kJ
+        %net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0);
+        %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
         %%
-        Wt(i) = net_work(i) * (p(1)*V1);
-        Power(i) = Wt(i) * N(i)/120;
-        P_rate(i) = .8 * Power(i); 
+        
         %efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
         efficiency(i) = 1;
         RPM = [2100 15000];
@@ -159,26 +153,45 @@ equivolence_ratio = 1.1
             mechanical_eff = interp1(RPM, mech_eff, N(i), 'linear');
         end
         
-        
         efficiency(i) = mechanical_eff;
 %         P_specific(i) = efficiency(i) * Wt(k,i) * N(i)/120;
 %         P_cylinder(i) = P_specific(i) * Ma(k,i);
         %P_total(i) = P_cylinder(i);
+        
+        velo(i) = interp1(velo_rpm, velocity_kmhr, N(i), 'linear');
+        velo1 = 60 * 1.61
+        %W_loss(i) = drag_power(velo(i)) * 120 /N(i)
+        Wt_i(i) = efficiency(i) * net_work(i)/6 
+        %Wt_i(i) = efficiency(i) * net_work(i)/6 * (p(1)*V1)
+        %Wt(i) = Wt_i(i) - W_loss(i);
+        Wt(i) = Wt_i(i);
+        % divide by 120 sicne two cycles per ottocylce
+        Power(i) = 6 * Wt(i) * N(i)/120; % watts
+        P_rate(i) = .8 * Power(i); 
+        
         imep(i) = Power(i)/1000*2*10^3/(D*1000*(N(i)/60));
         bmep(i) =  mechanical_eff*imep(i);
         %p_real(i) = ((P_total(i) - Pf(i))/(P_total(i))) * P_total(i)
 
         %P_hp(k,i) = P_total(i)/745.699872;
-       
-        P_hp(i) = efficiency(i) * Power(i)/745.699872;
+        Power_watts(i)=  Power(i);
+        P_hp(i) = Power(i)/0.745699872;
+        %P_hp(i) =  Power(i)/745.699872; %
         % SFC
-        SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
+        %SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
+        SFC(i) = (Mf(i))/(Wt(i)); %kg/kj
         SFC_Converted(i) = SFC(i) * 3.6e9; %g/Kw-hr
-        Torque(i) = Power(i)/((2*3.1415*N(i)/60));
-
-   
-     end
-
+        SFC_Converted(i) = SFC(i) * 3.6e6; %kg/Kw-hr
+        Torque(i) = Power(i)/((2*3.1415*N(i)/60));   
+        fuel_eff(i) = 0;
+        if N(i)>= velo_rpm(1) && N(i)<= velo_rpm(end)
+            velo1 = 65 * 1.61
+            % Multiply by 2 since two rotations per cycle
+            fuel_eff(i) = (velo1/(SFC_Converted(i) * (Power_watts(i)/1000))) * 2.35215; % to get to MPG
+        end
+        
+    end
+     
 
     %hold on
     %plot(N,P_hp(k, :))
@@ -190,7 +203,7 @@ figure
 disp(N)
 plot(N, P_hp)
 
-title('Lift Power vs RPM')
+title('Power vs RPM')
 ylabel('Power (hp)')
 xlabel('RPM')
 xlim([0 15000])
@@ -202,8 +215,8 @@ hold on
 plot(N, Torque(1,:))
  
 title('Torque vs RPM')
-xlabel('Torque')
-ylabel('RPM')
+ylabel('Torque (NM)')
+xlabel('RPM')
 
 
 %%
@@ -214,5 +227,29 @@ xlabel('RPM')
 ylabel('Volumetric Efficiency')
 
 
+%%
+figure
+plot(800:100:15000, SFC_Converted .* Power_watts*1000)
+%%
+figure
+plot(800:100:15000, SFC_Converted)
+title('SFC')
+%%
+figure
+plot(800:100:15000, fuel_eff)
+title('FE')
+
+
+
+
+%%
+figure
+plot(800:100:15000, Power_watts/1000)
+title('Power KW')
+
+%%
+
+figure
+plot(800:100:15000, Wt_i)
 
 
