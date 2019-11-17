@@ -323,7 +323,7 @@ for j = 1 : length(N)
             mass(i+1) = .00001;
         end
 
-       if theta(i) <= -5
+       if theta(i) <= open_in
             temp(i+1) = temp(i);
        else
             temp(i+1) = (mass(i) * temp(i) + To * (mass(i+1) - mass(i)))/mass(i+1);
