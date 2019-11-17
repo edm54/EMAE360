@@ -1,11 +1,7 @@
 %Power Required at a certain Speed
 clear
 Cr = 0.015;
-<<<<<<< HEAD
 Cd = 0.7;
-=======
-Cd =  .7;
->>>>>>> fe523b0fe37e578ecd60d49a6dee1cf380c247e1
 M = 300; %kg
 g = 9.81; %m/s^2
 A = 1; % m^2
