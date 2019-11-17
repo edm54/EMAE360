@@ -22,10 +22,10 @@ k=151;
 term = (0.0707-0.001)/2;
 rc = b/2; %Outside of cylinder
 rb = 0.0705/2+term; %minor axis radius of fins
-N1=floor(s/(S+tf))+1; %stroke plus engine block
+N1=floor((s+0.0487)/(S+tf))+1; %stroke plus engine block
 
 %Rectangular Fin Characteristics
-x = 0.1;
+x = 0.05;
 L2 = 0.04922;
 L1 = 0.042;
 N2 = 2*floor(L1/(S+tf))+floor(L2/(S+tf)); %includes both sides of the cylinder
