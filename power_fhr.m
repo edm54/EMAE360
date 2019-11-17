@@ -151,7 +151,7 @@ equivolence_ratio = 1.1
         Q(i) =  Qin /(p(1)*V1);
         %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
 
-        net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0); %kJ
+        net_work(i) = 6 * (FiniteHeatWoschni(Q(i), N(i), Ma(i), 0) - PumpingLoss(Ma(i))); %kJ
 
 
         %%

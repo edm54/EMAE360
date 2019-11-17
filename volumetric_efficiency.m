@@ -418,7 +418,7 @@ end
 
  
  %%
- %N = 800: 25: 10000
+ %N = 800:25:10000
 figure
 hold on
 plot(N, V_eff)
