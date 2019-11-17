@@ -24,7 +24,7 @@ V1 = r/(r-1)*Vd;
 Vo = V1/r; %Total volume at top dead center, m^3
 P1 = 101.325; %Initial Pressure, kPa
 T1 = 300; %K
-Tw = 400; %K, inside wall temperature
+Tw = 530; %K, inside wall temperature
 Tbar = Tw / T1;
 omega = N.*pi/60; %rps
 Ubar = 2.*s.*N./60; %Mean piston speed (m/s)
@@ -112,13 +112,13 @@ if plt>0
     figure
     plot(prop.theta,bar)
     ylabel("Pressure, bar")
-    xlabel("Angle, rad")
+    xlabel("Angle, deg")
     title("Pressure vs Crank Angle")
 
     figure
     plot(prop.theta,prop.temp)
     ylabel("Temperature, K")
-    xlabel("Angle, rad")
+    xlabel("Angle, deg")
     title("Temperature vs Crank Angle")
     %{
     figure
@@ -131,21 +131,21 @@ if plt>0
     figure
     plot(prop.theta,prop.heatflux)
     ylabel("q'', MW/m^2")
-    xlabel("Angle, rad")
+    xlabel("Angle, deg")
     title("Heat loss vs Crank Angle")
 
     figure
     plot(prop.theta,prop.htcoeff)
     ylabel("h")
-    xlabel("Angle, rad")
+    xlabel("Angle, deg")
     title("Heat transfer coefficient vs Crank Angle")
 
     figure
     plot(prop.theta,work,prop.theta,heatloss)
     legend('Work','Heatloss')
     xlabel('Crank Angle, deg')
-    ylabel('Cumulative Work and Heat Loss, kJ')
-    title('Cumulative Work and Heat Loss vs Crank Angle')
+    ylabel('Cumulative Work and Heat Loss per Cylinder, kJ')
+    title('Cumulative Work and Heat Loss vs Crank Angle per Cylinder')
 end
 
     function [fy,ht,hflux,T] = integrate_ht(theta,thetae,fy)

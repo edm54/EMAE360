@@ -13,7 +13,8 @@ set(0, 'DefaultAxesFontWeight', 'normal', ...
 set(groot,'defaultLineLineWidth',3)
 
 rc = 10;
-    
+
+
 % Initial Conditions
 p(1) = 101325;%pa
 T(1) = 294; %k
@@ -89,7 +90,6 @@ equivolence_ratio = 1.1
     p(4) = pcomp(length(pcomp)); %this is an estimate, could use refprop to find actual
     T(4) = Tcomp(length(Tcomp));
 
-    gamma = calc_gamma(T(4));
     stroke = .0641;
     bore = 1.1* stroke; 
     % Initial Conditions
@@ -103,7 +103,7 @@ equivolence_ratio = 1.1
     %Engine Parameters
     Qlhv = 44e6; %j/kg from Heywood App D
     f = 14.7; % air to fuel mass ratio
-
+    
     C = 6; % number of cylinders
     D = .0015; %Total Displacement, m^3
 
@@ -111,8 +111,21 @@ equivolence_ratio = 1.1
     rho(1) = p(1)/(R*T(1)); %from ideal gas law
     
     N = 800:100:15000;
+    Ma = zeros(length(N),1);
+    Mf = zeros(length(N),1);
+    Q = zeros(length(N),1);
+    net_work = zeros(length(N),1);
+    Wt = zeros(length(N),1);
+    Power = zeros(length(N),1);
+    efficiency = zeros(length(N),1);
+    imep = zeros(length(N),1);
+    bmep = zeros(length(N),1);
+    P_hp = zeros(length(N),1);
+    SFC = zeros(length(N),1);
+    SFC_Converted = zeros(length(N),1);
+    Torque = zeros(length(N),1);
     Veff = volumetric_efficiency(N);
-    i = 1
+    i = 1;
     %for N = 800:100:10000
     velocity_arr = [30 60 150]
     velocity_arr = [30  150]
@@ -132,18 +145,14 @@ equivolence_ratio = 1.1
         Qin = combustion_eff * Mf(i) * Qlhv; 
         Vd = ((pi*bore^2*stroke)/4); %meter cubes
         V1  = Vd/(1-(1/rc));
-
         Q(i) =  Qin /(p(1)*V1);
         net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0); %kJ
-        %net_work(i) = 6 * FiniteHeatWoschni(Q(i), N(i), Ma(i), 0);
-        %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
         %%
-        
+        Wt(i) = net_work(i);
+        Power(i) = Wt(i) * N(i)/120;
         %efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
         efficiency(i) = 1;
         RPM = [2100 15000];
-        %mech_eff = [ .9 .75];  
-        %mech_eff = [ .8 .75];  
         mech_eff = [ .9 .65];  
         if N(i)<= 2100
             mechanical_eff = .9;
@@ -174,13 +183,14 @@ equivolence_ratio = 1.1
         %p_real(i) = ((P_total(i) - Pf(i))/(P_total(i))) * P_total(i)
 
         %P_hp(k,i) = P_total(i)/745.699872;
+
         Power_watts(i)=  Power(i);
         P_hp(i) = Power(i)/0.745699872;
         %P_hp(i) =  Power(i)/745.699872; %
+
         % SFC
         %SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
         SFC(i) = (Mf(i))/(Wt(i)); %kg/kj
-        SFC_Converted(i) = SFC(i) * 3.6e9; %g/Kw-hr
         SFC_Converted(i) = SFC(i) * 3.6e6; %kg/Kw-hr
         Torque(i) = Power(i)/((2*3.1415*N(i)/60));   
         fuel_eff(i) = 0;
@@ -191,7 +201,7 @@ equivolence_ratio = 1.1
         end
         
     end
-     
+
 
     %hold on
     %plot(N,P_hp(k, :))
@@ -212,11 +222,13 @@ xlim([0 15000])
 figure 
 hold on
 
-plot(N, Torque(1,:))
- 
+plot(N, Torque(:,1))
+
 title('Torque vs RPM')
-ylabel('Torque (NM)')
-xlabel('RPM')
+
+xlabel('Torque, N*m')
+ylabel('RPM')
+
 
 
 %%

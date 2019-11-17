@@ -15,13 +15,20 @@ hflux=0.3165e6; %W/m^2
 %Fin characteristics 
 tf=0.0025; %Thickness of fins
 t=tf/2; %Half thickness of fins, used to calculate m
-S=0.0025; %fin spacing
+S=0.003; %fin spacing
 k=151;
-N=floor((s+.042)/(S+tf))+1; %stroke plus engine block
 
+%Elliptic Fin Characteristics
 term = (0.0707-0.001)/2;
 rc = b/2; %Outside of cylinder
 rb = 0.0705/2+term; %minor axis radius of fins
+N1=floor((s+0.0487)/(S+tf))+1; %stroke plus engine block
+
+%Rectangular Fin Characteristics
+x = 0.05;
+L2 = 0.04922;
+L1 = 0.042;
+N2 = 2*floor(L1/(S+tf))+floor(L2/(S+tf)); %includes both sides of the cylinder
 
 r2=rc+thick; %Outside Radius of Fins 
 Ag=2*pi*s*b;
@@ -46,16 +53,24 @@ while abs(Ts1-Ts2) > 0.001
     k = 151; %Thermal conductivity of fins, W/(m K)
     m = sqrt(hc/(k*t));
     ra = optimumFin(t,rb,rc,k,hc);
-    nf = FinEff(ra,rb,rc,m);
-    Af=2*pi*(ra*rb-rc^2);
-    At=N*Af+2*pi*rc*S*(N-1);
-    Rf=1/(N*nf*hc*Af);
-    Rt=1/(hc*(At-N*Af));
-    R1=Rf*Rt/(Rf+Rt);
+    nfe = FinEffEll(ra,rb,rc,m);
+    nfr = FinEffRect(x,t,m);
+    Afe=EllipticArea(ra,rb,rc,N1);
+    Afr=RectArea(x,N2);
+    Ate=Afe+CylinArea(rc,S,N1);
+    Atr=Afr+SurfArea(S,N2);
+    Rfe=1/(nfe*hc*Afe);
+    Rfr=1/(nfr*hc*Afr);
+    Rte=1/(hc*(Ate-Afe));
+    Rtr=1/(hc*(Atr-Afr));
+    Rf=Rfe*Rfr/(Rfe+Rfr);
+    Re=Rte*Rfe/(Rte+Rfe);
+    Rr=Rtr*Rfr/(Rtr+Rfr);
+    R1=Re*Rr/(Re+Rr);
     Ts2=Q*R1+To;
 end
 
-function nf = FinEff(ra,rb,rc,m)
+function nf = FinEffEll(ra,rb,rc,m)
 %{
     Bessel function variant for circular annular fins
     term1 = 2*r1 / (m*(r2^2-r1^2));
@@ -69,6 +84,11 @@ function nf = FinEff(ra,rb,rc,m)
     nf=(tanh(m*psi*L)/(m*psi*L))^psi;
 end
 
+function nf = FinEffRect(x,t,m)
+    Lc = x+t;
+    nf = tanh(m*Lc)/(m*Lc);
+end
+
 function hc = CoolingHTC(K,B,v,tf,S)
     a=0.07;
     k=.02435; %thermal conductivity of air, W/(m K)
@@ -78,4 +98,21 @@ function hc = CoolingHTC(K,B,v,tf,S)
     X=(tf/S+1)^0.55 * (1-K*Re^(-a)/((S/b)^B))^0.55;
     Nu=0.446*X*Re^0.55;
     hc=Nu*k/b;
+end
+
+function Afe = EllipticArea(ra,rb,rc,N1)
+    Afe = 2*pi*(ra*rb-rc^2)*N1;
+end
+
+function Afr = RectArea(x,N2)
+    L =0.1412; %m
+    Afr = 2*L*x*N2;
+end
+
+function Afc = CylinArea(rc,S,N)
+    Afc = 2*pi*rc*S*(N-1);
+end
+
+function Atr = SurfArea(S,N)
+    Atr = 2*S*0.1412*N;
 end

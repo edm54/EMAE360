@@ -1,7 +1,11 @@
 %Power Required at a certain Speed
 clear
 Cr = 0.015;
+<<<<<<< HEAD
 Cd = 0.7;
+=======
+Cd =  .7;
+>>>>>>> fe523b0fe37e578ecd60d49a6dee1cf380c247e1
 M = 300; %kg
 g = 9.81; %m/s^2
 A = 1; % m^2
@@ -10,10 +14,10 @@ iter = 1;
 
 F = Cr*M*g;
 Q = 0.5*p*Cd*A;
-vmph = 70; %mph, initial guess
+vmph = 60; %mph, initial guess
 v2 = .44704*vmph; % m/s
 v_conv = 1;
-Pa = 113; %hp
+Pa = 180; %hp
 
 while v_conv >0.001
     vi = v2;
