@@ -10,7 +10,7 @@ thick = 0.01; %m, cylinder thickness, confirm with team
 
 Tw=530; %K, a set value. 
 To=300; %K, atmospheric temperature
-hflux=0.3165e6; %W/m^2
+hflux=0.44214e6; %W/m^2
 
 %Fin characteristics 
 tf=0.0025; %Thickness of fins
@@ -25,7 +25,7 @@ rb = 0.0705/2+term; %minor axis radius of fins
 N1=floor((s+0.0487)/(S+tf))+1; %stroke plus engine block
 
 %Rectangular Fin Characteristics
-x = 0.05;
+x = 0.06;
 L2 = 0.04922;
 L1 = 0.042;
 N2 = 2*floor(L1/(S+tf))+floor(L2/(S+tf)); %includes both sides of the cylinder
@@ -47,7 +47,8 @@ else
     K = 0.62;
     B = 0.27;
 end
-while abs(Ts1-Ts2) > 0.001
+Ts2 = 1000; %arbitrary
+while Ts2>Ts1
     v = v+1;
     hc = CoolingHTC(K,B,v,t,S); %Heat Transfer Coefficient between Fin and air
     k = 151; %Thermal conductivity of fins, W/(m K)
@@ -69,6 +70,7 @@ while abs(Ts1-Ts2) > 0.001
     R1=Re*Rr/(Re+Rr);
     Ts2=Q*R1+To;
 end
+disp(v)
 
 function nf = FinEffEll(ra,rb,rc,m)
 %{
