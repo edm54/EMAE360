@@ -28,9 +28,9 @@ Qlhv = 44e6; %j/kg from Heywood App D
 f = 14.7; % air to fuel mass ratio
 
 
-figure
-equivolence_ratio = 1.1
-
+    figure
+    %equivolence_ratio = 1.1
+    equivolence_ratio = 1.0
     % Equivolence Ratio * Ideal Air Fuel 
     fuel_air = 14.98/equivolence_ratio
 
@@ -110,8 +110,8 @@ equivolence_ratio = 1.1
     % State 1, 
     rho(1) = p(1)/(R*T(1)); %from ideal gas law
     
-    N = 800:500:15000;
-    
+    N = 800 : 100 :15000
+    %N = 5000
     Ma = zeros(length(N),1);
     Mf = zeros(length(N),1);
     Q = zeros(length(N),1);
@@ -125,13 +125,13 @@ equivolence_ratio = 1.1
     SFC = zeros(length(N),1);
     SFC_Converted = zeros(length(N),1);
     Torque = zeros(length(N),1);
-    Veff = volumetric_efficiency(N,0);
+    [Veff, pump_work] = volumetric_efficiency(N);
     i = 1;
     %for N = 800:100:10000
     velocity_arr = [30 60 150];
     velocity_arr = [30  150];
     velocity_kmhr = velocity_arr * 1.60934;
-    velo_rpm = [1500  9400];
+    velo_rpm = [1500  9500];
     throttle_p = 1;
     ma_ideal = (D/C)*(rc/(rc-1)) * rho(1);
     D_cc = 1500;
@@ -140,6 +140,7 @@ equivolence_ratio = 1.1
     Qconst = combustion_eff * Qlhv/(p(1)*V1); 
     Ws = Cv*((T(3)-T(2)) - (T(4)-T(1)));
     power_needed = PowerReq(60) * 2
+    velo1 = 60 * 1.61
     for i = 1:length(N)
         efficiency(i) = 1;
         RPM = [2100 15000];
@@ -152,34 +153,19 @@ equivolence_ratio = 1.1
         efficiency(i) = mechanical_eff;
          %Specific work per cylinder, J/kg
         %Ma(i) = Veff(i) * (D/C)*(rc/(rc-1)) * rho(1);
+        power_loss_pump = (pump_work(i)/1000 * N(i)/120)/0.745699872   
         
-        throttle_p = throttle(N(i), power_needed, Veff(i), ma_ideal, fuel_air, Qconst,  mechanical_eff);
-        Ma(i) = min(Veff(i), throttle_p) *  ma_ideal;%Mass of Air in each cylinder, kg
-        %Ma(i) = (D/C)*(rc/(rc-1)) * rho(1);
-        %Ma(k,i) = (D/C)*(rc/(rc-1)) * rho(1);
-        %Mf = Ma/f;
+        %throttle_p(i) = throttle(N(i), power_needed/mechanical_eff + power_loss_pump, Veff(i), ma_ideal, fuel_air, Qconst,  mechanical_eff);
+        throttle_p(i) = 1;
+        Ma(i) = min(Veff(i), throttle_p(i)) *  ma_ideal;%Mass of Air in each cylinder, kg
         Mf(i) = Ma(i)/fuel_air;
         Q(i) = Mf(i) * Qconst;
-        %- PumpingLoss(Ma(i))
-        
-        %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
-        net_work(i) = 6 * (FiniteHeatWoschni(Q(i), N(i), Ma(i), 0)); %kJ
-        %%
-        Wt(i) = net_work(i);
-        Power(i) = Wt(i) * N(i)/120;
-        %efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
-
-%         P_specific(i) = efficiency(i) * Wt(k,i) * N(i)/120;
-%         P_cylinder(i) = P_specific(i) * Ma(k,i);
-        %P_total(i) = P_cylinder(i);
-        
+        %PL(i) = PumpingLoss(Ma(i))
+        net_work(i) = 6 * (FiniteHeatWoschni(Q(i), N(i), Ma(i), 0)); %kJ   
         velo(i) = interp1(velo_rpm, velocity_kmhr, N(i), 'linear');
-        velo1 = 60 * 1.61
+        %velo1 = 60 * 1.61
         %W_loss(i) = drag_power(velo(i)) * 120 /N(i)
-        Wt_i(i) = efficiency(i) * net_work(i)/6 
-        %Wt_i(i) = efficiency(i) * net_work(i)/6 * (p(1)*V1)
-        %Wt(i) = Wt_i(i) - W_loss(i);
-        Wt(i) = Wt_i(i);
+        Wt(i) = efficiency(i) * net_work(i)/6  - pump_work(i)/1000
         % divide by 120 sicne two cycles per ottocylce
         Power(i) = 6 * Wt(i) * N(i)/120; % watts
         P_rate(i) = .8 * Power(i); 
@@ -193,45 +179,36 @@ equivolence_ratio = 1.1
         Power_watts(i)=  Power(i);
         P_hp(i) = Power(i)/0.745699872;
         %P_hp(i) =  Power(i)/745.699872; %
-
+        %velocity(i) = velocity_finder(P_hp(i));
         % SFC
         %SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
         SFC(i) = (Mf(i))/(Wt(i)); %kg/kj
         SFC_Converted(i) = SFC(i) * 3.6e6; %kg/Kw-hr
         Torque(i) = 1000 * Power(i)/((2*3.1415*N(i)/60));   
         fuel_eff(i) = 0;
-        if N(i)>= velo_rpm(1) && N(i)<= velo_rpm(end)
-            velo1 = 65 * 1.61
-            % Multiply by 2 since two rotations per cycle
-            fuel_eff(i) = (velo1/(SFC_Converted(i) * (Power_watts(i)/1000))) * 2.35215; % to get to MPG
+        if N(i)>= velo_rpm(1) && N(i)<= velo_rpm(end)           
+            % .9 because of transmission losses
+            fuel_eff(i) = .9 * (velo1/(SFC_Converted(i) * (Power_watts(i)/1000))) * 2.35215; % to get to MPG
         end
         
     end
-
-
-    %hold on
-    %plot(N,P_hp(k, :))
-   
-    %legend('.8', '.9', '1', '1.1', '1.2', '1.3')
 %%
 figure 
 
 disp(N)
 plot(N, P_hp)
 
-title('Power vs RPM')
+title('Power vs RPM, Redline Determination')
 ylabel('Power (hp)')
 xlabel('RPM')
-xlim([0 15000])
+xlim([0 12000])
+xline(9300, 'LineWidth',3)
 
 %%
 figure 
 hold on
-
 plot(N, Torque(:,1))
-
 title('Torque vs RPM')
-
 xlabel('RPM')
 ylabel('Torque, N*m')
 
@@ -242,9 +219,8 @@ figure
 plot(N, Veff)
 title('Volumetric Efficiency vs RPM')
 xlabel('RPM')
-ylabel('Volumetric Efficiency')
-
-
+ylabel('Volumetric Efficiency');
+xlim([0 9300])
 
 %%
 figure
@@ -253,6 +229,49 @@ title('SFC')
 %%
 figure
 plot(N, fuel_eff)
-title('FE')
+ylabel('Fuel Efficiency (MPG)')
+hold on
+yyaxis right
+plot(N,throttle_p)
+title('Fuel Efficiency at 60 MPH, with Throttling')
+xlabel('RPM')
+ylabel('Throttle Needed to Cruise at 60 MPH')
+legend('Fuel Efficiency', 'Throttle Percentage')
+%%
+figure
+hold on
+plot(N,throttle_p)
+title('Throttle Needed to Cruise at 60 MPH')
+xlabel('RPM')
+ylabel('Throttle Percentage')
 
+%%
+figure
+hold on
+plot(N,velocity)
+title('Velocity at Full Throttle (High Gear)')
+xlabel('RPM')
+ylabel('Velocity (MPH)')
+%%
+figure
+plot(N, fuel_eff)
+ylabel('Fuel Efficiency (MPG)')
+hold on
+yyaxis right
+plot(N,velocity)
+title('Fuel Efficiency & Velocity at Full Throttle (Highest Gear)')
+xlabel('RPM')
+ylabel('Velocity at Full Throttle (MPH)')
+legend('Fuel Efficiency', 'Velocity')
 
+%%
+power_loss_pump = (pump_work/1000 * N(i)/120)/0.745699872  
+figure
+hold on
+grid
+plot(N,power_loss_pump)
+title('Pump Power Loss (hp) vs RPM')
+xlabel('RPM')
+ylabel('Pump Power Loss (hp)')
+xlim([0 9300])
+ylim([min(power_loss_pump), 8])

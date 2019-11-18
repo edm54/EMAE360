@@ -1,4 +1,4 @@
-function [V_eff] = volumetric_efficiency(N,plt)
+function [V_eff, pump_work] = volumetric_efficiency(N)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -35,11 +35,11 @@ ex_dur = 230;
 close_ex = ex_dur + open_ex;
 
 exhuast_lift = -1 * (theta - open_ex).* (theta - close_ex); 
-y_out_max = max(exhuast_lift)
-y_in_max = max(intake_lift)
+y_out_max = max(exhuast_lift);
+y_in_max = max(intake_lift);
 
-intake_lift = (max_in_lift/y_in_max).* intake_lift
-exhuast_lift = (max_ex_lift/y_out_max) .* exhuast_lift
+intake_lift = (max_in_lift/y_in_max).* intake_lift;
+exhuast_lift = (max_ex_lift/y_out_max) .* exhuast_lift;
 
 for i = 1:length(intake_lift)
     if intake_lift(i) < 0
@@ -49,16 +49,16 @@ for i = 1:length(intake_lift)
         exhuast_lift(i) = 0;
     end
 end
-if plt > 0
-    plot(theta, exhuast_lift*1000);
-    hold on
-    plot(theta,intake_lift*1000);
-    title('Intake Valve Lift as a function of crank angle')
-    xlabel('Crank Angle')
-    ylabel('Lift (mm)')
-    ylim([0,10]);
-    legend('Exhuast valve lift','Intake valve lift')
-end
+
+% plot(theta, exhuast_lift*1000);
+% hold on
+% plot(theta,intake_lift*1000);
+% title('Intake Valve Lift as a function of crank angle')
+% xlabel('Crank Angle')
+% ylabel('Lift (mm)')
+% ylim([0,10]);
+% legend('Exhuast valve lift','Intake valve lift')
+
 %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 %saveas(gcf,'Valve Lift vs Crank.png')
     
@@ -67,7 +67,7 @@ end
  %D_in = .33 * bore;
  %D_ex = .29 * bore ;
 
- D_in = .026;
+ D_in = .028;
  D_ex = .0225 ;
 %D_ex = .019 ;
 
@@ -123,40 +123,31 @@ for i = 1: length(exhuast_lift)
     
 end
 % Or flat at .8 percent 
-if plt > 0
-    figure
-    hold on 
-
-    plot(theta,Am_in)
-    plot(theta, Am_ex)
-
-    legend('Intake', 'Exhuast')
-    title('Flow Area (m^2) as a Function of Crank Angle')
-    legend('Intake Flow Area', 'Exhuast Flow Area')
-    ylabel('Flow Area (M^2)')
-    xlabel('Crank Angle')
-end
+% figure
+% hold on 
+% 
+% plot(theta,Am_in)
+% plot(theta, Am_ex)
+% 
+% legend('Intake', 'Exhuast')
+% title('Flow Area (m^2) as a Function of Crank Angle')
+% legend('Intake Flow Area', 'Exhuast Flow Area')
+% ylabel('Flow Area (M^2)')
+% xlabel('Crank Angle')
 %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 %saveas(gcf,'Flow Area vs Crank.png')
-figure
+
 
 %% ex
 cd_ex = .5 + .5 .* [  1.2 1.5 1.6 1 .4 .2 0]./3.2;
-
-
 lv_dv_ex = [.1 .15 .2 .25 .3 .35 .4];
-plot(lv_dv_ex, cd_ex);
 fit = polyfit(lv_dv_ex, cd_ex,  3);
 val = polyval(fit, .1:.01:.3);
-if plt>0
-    hold on
-    plot(.1:.01:.3, val);
-    ylim([0 1]);
-    xlim([0 .3]);
-end
+ylim([0 1]);
+xlim([0 .3]);
 
 %% intake Cd vs lv/dv
-figure
+
 
 l_in1 = [.05 .08 .1];
 c_1 = [.58 .62 .67];
@@ -172,26 +163,16 @@ c_4 = [.68 .55 .53 .48];
 
 fit1 = polyfit(l_in1, c_1,  2);
 val1 = polyval(fit1, .05:.01:.1);
-if plt > 0
-    plot(.05:.01:.1, val1);
-end
-hold on
+
 fit2 = polyfit(l_in2, c_2,  1);
 val2 = polyval(fit2, l_in2);
-if plt > 0
-    plot(l_in2, val2);
-end
+
 fit3 = polyfit(l_in3, c_3,  2);
 val3 = polyval(fit3, .11:.01:.18);
-if plt>0
-    plot(.11:.01:.18, val3);
-end
+
 fit4 = polyfit(l_in4, c_4,  1);
 val4 = polyval(fit4, .18:.01:.35);
-if plt>0
-    plot(.18:.01:.35, val4);
-end
-title('Intake Cd vs LV/DV')
+
 %%
 
 
@@ -216,22 +197,21 @@ for i = 1: length(intake_lift)
     end
     
 end 
-if plt > 0
-    figure
-    plot(theta, CD_in)
-    hold on
-    plot(theta, CD_ex)
-    title('CD as a Function of Crank Angle')
-    xlabel('Crank angle')
-    ylabel("Discharge Coeff")
-    legend('Intake', 'Exhaust')
-end
+
+% figure
+% plot(theta, CD_in)
+% hold on
+% plot(theta, CD_ex)
+% title('CD as a Function of Crank Angle')
+% xlabel('Crank angle')
+% ylabel("Discharge Coeff")
+% legend('Intake', 'Exhuast')
 %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 %saveas(gcf,'CD vs Crank.png')
 
 %% Exhuast
 ind = 1;
-
+pump_work = zeros(length(N),1);
 %N = 800:25:9400;
 
 
@@ -245,7 +225,7 @@ for j = 1 : length(N)
     R = 287;
     Co = sqrt(gamma * R * To);
     P_cylinder_e = 6.6417e+05; 
-    P_cylinder_e = 4.6417e+05;% Pascals
+    %P_cylinder_e = 4.6417e+05;% Pascals
     rho_cylinder = P_cylinder_e/(R * To); %Kg/m3
     Ma = 3.335683867042752e-04; %Kg
     time = (theta./360) .* (1/(N(j)/60)); %seconds
@@ -260,10 +240,9 @@ for j = 1 : length(N)
     delta_t = time(2) - time(1);
     rho = rho_cylinder;
     m1 = Ma;
-
+    rho(i) = Ma/v(1);
     for i = 1:length(theta)-1
-        rho(i) = pressure(i)/(R * temp(i));
-        m1(i) = rho(i)*v(i);
+       
         ex_lift = exhuast_lift(i);
         in_lift = intake_lift(i);
         min_area_ex = Am_ex(i); %meters
@@ -339,10 +318,26 @@ for j = 1 : length(N)
        else
             temp(i+1) = (mass(i) * temp(i) + To * (mass(i+1) - mass(i)))/mass(i+1);
        end
-       if abs(m_dot(i)) > .00001
+       if abs(m_dot(i)) > .00000001
             pressure(i + 1) =  mass(i + 1) * R * temp(i+1)/v(i+1);
+       
+       
+       rho(i+1) = mass(i + 1)/v(i+1);
+     
+%        else
+%            pressure(i + 1) = pressure(i);
        end
-
+      
+       if abs(m_dot(i)) > 0
+            if theta(i) >= -180 && theta(i) <= 0
+                pump_work(ind) = pump_work(ind) +  (pressure(i)- P_external_e)*(abs(v(i+1)-v(i-1)))/2;
+                % pump_work(ind) = pump_work(ind) +  pressure(i)*(abs(v(i+1)-v(i)));
+            elseif theta(i) >= 0 && theta(i) <= 180
+                pump_work(ind) = pump_work(ind) +  (pressure(i)-P_external_in)*(abs(v(i+1)-v(i-1)))/2;
+            end
+       end
+       
+       
     end
     % Calculate individual Volumetric Efficiencies
     veff2(ind) =  mass(end)/mass(1);
@@ -352,7 +347,6 @@ for j = 1 : length(N)
     ind = ind + 1;
     %m_dot * temp * dt + temp in * mass
 end
-if plt > 0
     figure
     hold on
     plot(N, V_eff)
@@ -361,33 +355,43 @@ if plt > 0
     grid 
     title('Volumetric Efficency vs RPM')
     legend('Total', 'Exhuast', 'Intake')
+    xlabel('RPM')
+    ylabel('Volumetric Efficency')
     
-    
-    
-   disp(max(V_eff))
-   disp(max(veff1))
-   disp(max(veff2))
-    
+%     disp(pump_work)
+%     disp(pressure(1))
+%     disp(v(1))
+%    disp(max(V_eff))
+%    disp(max(veff1))
+%    disp(max(veff2))
+%     
+%    figure
+%     plot(N, pump_work)
+%     title('Pump Work')
+%     xlabel('Crank Angle')
+%     ylabel('Pump Work')
+   
+   
     %%
     
-    figure
-    plot(theta, mass)
-    title('Air mass in cylinder during exhuast as a function of crank angle')
-    xlabel('Crank Angle')
-    ylabel('Mass of Air (kg)')
-    
-    figure
-    plot(theta, temp)
-    title('temp')
-    %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
-    %saveas(gcf,'Air mass exhaust vs crank.png')
+%     figure
+%     plot(theta, mass)
+%     title('Air mass in cylinder during exhuast as a function of crank angle')
+%     xlabel('Crank Angle')
+%     ylabel('Mass of Air (kg)')
+%     
+%     figure
+%     plot(theta, temp)
+%     title('temp')
+%     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+%     %saveas(gcf,'Air mass exhaust vs crank.png')
+% 
+%     figure
+%     plot(theta(1:end-1), m_dot)
+%     title('M dot during exhuast as a function of crank angle')
+%     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+%     %saveas(gcf,'M dot vs Crank Angle.png')
 
-    figure
-    plot(theta(1:end-1), m_dot)
-    title('M dot during exhuast as a function of crank angle')
-
-    %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
-    %saveas(gcf,'M dot vs Crank Angle.png')
 
     
  %%   
@@ -407,12 +411,12 @@ if plt > 0
 % 
 %   
 % %%
-%     figure
-%     plot( theta, pressure)
-%     title('Pressure of cylinder during exhuast as a function of crank angle')
-%     line([theta(1),theta(end)],[101000,101000])
+  %  figure
+   % plot( theta, pressure)
+  %  title('Pressure of cylinder during exhuast as a function of crank angle')
+   % line([theta(1),theta(end)],[101000,101000])
     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
-    %saveas(gcf,'P exhuast vs crank.png')
+   % saveas(gcf,'P exhuast vs crank.png')
 %%
 
 %     figure
@@ -431,14 +435,16 @@ if plt > 0
  
  %%
  %N = 800:25:10000
-    figure
-    hold on
-    plot(N, V_eff)
-    plot(N, veff1)
-    plot(N, veff2)
-    grid 
-    title('Volumetric Efficency vs RPM')
-    legend('Exhuast', 'Intake', 'Total')
-end
+
+
     %}
-   
+% figure
+% hold on
+% plot(N, V_eff)
+% plot(N, veff1)
+% plot(N, veff2)
+% grid 
+% title('Volumetric Efficency vs RPM')
+% legend('Exhuast', 'Intake', 'Total')
+%     %}
+end

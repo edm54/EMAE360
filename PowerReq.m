@@ -14,4 +14,7 @@ F = Cr*M*g; %rolling Force
 Q = 0.5*p*Cd*A; %Drag force
 v2 = .44704*vmph; % m/s
 Preq = (F+Q*v2^2)*v2/745.1; %hp
+
+
+
 end
