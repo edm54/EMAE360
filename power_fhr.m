@@ -196,7 +196,7 @@ equivolence_ratio = 1.1
         %SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
         SFC(i) = (Mf(i))/(Wt(i)); %kg/kj
         SFC_Converted(i) = SFC(i) * 3.6e6; %kg/Kw-hr
-        Torque(i) = Power(i)/((2*3.1415*N(i)/60));   
+        Torque(i) = 1000 * Power(i)/((2*3.1415*N(i)/60));   
         fuel_eff(i) = 0;
         if N(i)>= velo_rpm(1) && N(i)<= velo_rpm(end)
             velo1 = 65 * 1.61
