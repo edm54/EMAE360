@@ -1,8 +1,6 @@
 %Returns the cumulative work for one cylinder in kJ, given a (volumetric
 %efficiency, equivalence ratio, RPM).
-function [Wnet, Tcomb] = FiniteHeatWoschni(Qin,N,ma,plt)
-
-%Motored Engine
+function Wnet = FiniteHeatWoschni(Qin,N,ma,plt)
 r = 10;
 T1 = 300; %K 
 P1 = 101325; %Pa
