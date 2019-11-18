@@ -110,7 +110,8 @@ equivolence_ratio = 1.1
     % State 1, 
     rho(1) = p(1)/(R*T(1)); %from ideal gas law
     
-    N = 800:100:15000;
+    N = 800:500:15000;
+    
     Ma = zeros(length(N),1);
     Mf = zeros(length(N),1);
     Q = zeros(length(N),1);
@@ -127,46 +128,47 @@ equivolence_ratio = 1.1
     Veff = volumetric_efficiency(N);
     i = 1;
     %for N = 800:100:10000
-    velocity_arr = [30 60 150]
-    velocity_arr = [30  150]
-    velocity_kmhr = velocity_arr * 1.60934
-    velo_rpm = [1500  9400]
-    throttle = 1
+    velocity_arr = [30 60 150];
+    velocity_arr = [30  150];
+    velocity_kmhr = velocity_arr * 1.60934;
+    velo_rpm = [1500  9400];
+    throttle_p = 1;
+    ma_ideal = (D/C)*(rc/(rc-1)) * rho(1);
+    D_cc = 1500;
+    Vd = ((pi*bore^2*stroke)/4); %meter cubes
+    V1  = Vd/(1-(1/rc));
+    Qconst = combustion_eff * Qlhv/(p(1)*V1); 
+    Ws = Cv*((T(3)-T(2)) - (T(4)-T(1)));
+    power_needed = PowerReq(60) * 2
     for i = 1:length(N)
-        Ws = Cv*((T(3)-T(2)) - (T(4)-T(1))); %Specific work per cylinder, J/kg
-        %Ma(i) = Veff(i) * (D/C)*(rc/(rc-1)) * rho(1);
-        Ma(i) = min(Veff(i), throttle) * (D/C)*(rc/(rc-1)) * rho(1);%Mass of Air in each cylinder, kg
-        %Ma(i) = (D/C)*(rc/(rc-1)) * rho(1);
-        %Ma(k,i) = (D/C)*(rc/(rc-1)) * rho(1);
-        D_cc = 1500;
-
-        %Mf = Ma/f;
-        Mf(i) = Ma(i)/fuel_air;
-        Qin = combustion_eff * Mf(i) * Qlhv; 
-        Vd = ((pi*bore^2*stroke)/4); %meter cubes
-        V1  = Vd/(1-(1/rc));
-        Q(i) =  Qin /(p(1)*V1);
-        %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
-
-        net_work(i) = 6 * (FiniteHeatWoschni(Q(i), N(i), Ma(i), 0) - PumpingLoss(Ma(i))); %kJ
-
-
-        %%
-        Wt(i) = net_work(i);
-        Power(i) = Wt(i) * N(i)/120;
-        %efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
         efficiency(i) = 1;
         RPM = [2100 15000];
         mech_eff = [ .9 .65];  
         if N(i)<= 2100
             mechanical_eff = .9;
-        %elseif N(i)> 10000
-           % mechanical_eff = .75
         else
             mechanical_eff = interp1(RPM, mech_eff, N(i), 'linear');
         end
-        
         efficiency(i) = mechanical_eff;
+         %Specific work per cylinder, J/kg
+        %Ma(i) = Veff(i) * (D/C)*(rc/(rc-1)) * rho(1);
+        
+        throttle_p = throttle(N(i), power_needed, Veff(i), ma_ideal, fuel_air, Qconst,  mechanical_eff);
+        Ma(i) = min(Veff(i), throttle_p) *  ma_ideal;%Mass of Air in each cylinder, kg
+        %Ma(i) = (D/C)*(rc/(rc-1)) * rho(1);
+        %Ma(k,i) = (D/C)*(rc/(rc-1)) * rho(1);
+        %Mf = Ma/f;
+        Mf(i) = Ma(i)/fuel_air;
+        Q(i) = Mf(i) * Qconst;
+        %- PumpingLoss(Ma(i))
+        
+        %net_work(i) = 6 * FiniteHeatRelease(Q(i), N(i), Ma(i), 0);
+        net_work(i) = 6 * (FiniteHeatWoschni(Q(i), N(i), Ma(i), 0)); %kJ
+        %%
+        Wt(i) = net_work(i);
+        Power(i) = Wt(i) * N(i)/120;
+        %efficiency(i) = combustion_eff * V_eff(i) * mechanical_eff;
+
 %         P_specific(i) = efficiency(i) * Wt(k,i) * N(i)/120;
 %         P_cylinder(i) = P_specific(i) * Ma(k,i);
         %P_total(i) = P_cylinder(i);
@@ -196,7 +198,7 @@ equivolence_ratio = 1.1
         %SFC(i) = (C * Ma(i)/f)/(Wt(i)); %kg/kj
         SFC(i) = (Mf(i))/(Wt(i)); %kg/kj
         SFC_Converted(i) = SFC(i) * 3.6e6; %kg/Kw-hr
-        Torque(i) = Power(i)/((2*3.1415*N(i)/60));   
+        Torque(i) = 1000 * Power(i)/((2*3.1415*N(i)/60));   
         fuel_eff(i) = 0;
         if N(i)>= velo_rpm(1) && N(i)<= velo_rpm(end)
             velo1 = 65 * 1.61
@@ -230,8 +232,8 @@ plot(N, Torque(:,1))
 
 title('Torque vs RPM')
 
-xlabel('Torque, N*m')
-ylabel('RPM')
+xlabel('RPM')
+ylabel('Torque, N*m')
 
 
 
@@ -243,29 +245,14 @@ xlabel('RPM')
 ylabel('Volumetric Efficiency')
 
 
+
 %%
 figure
-plot(800:100:15000, SFC_Converted .* Power_watts*1000)
-%%
-figure
-plot(800:100:15000, SFC_Converted)
+plot(N, SFC_Converted)
 title('SFC')
 %%
 figure
-plot(800:100:15000, fuel_eff)
+plot(N, fuel_eff)
 title('FE')
-
-
-
-
-%%
-figure
-plot(800:100:15000, Power_watts/1000)
-title('Power KW')
-
-%%
-
-figure
-plot(800:100:15000, Wt_i)
 
 
