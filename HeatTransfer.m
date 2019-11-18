@@ -4,13 +4,16 @@ this, the required power to accelerate this amount of air is calculated as
 well. 
 %}
 clear
+eq=1;
+N=9300;
+
 b = 0.0705; %m, bore
 s = 0.0641; %m, stroke
+Ag=2*pi*s*b;
 thick = 0.01; %m, cylinder thickness, confirm with team
 
 Tw=530; %K, a set value. 
 To=300; %K, atmospheric temperature
-hflux=0.44214e6; %W/m^2
 
 %Fin characteristics 
 tf=0.0025; %Thickness of fins
@@ -20,25 +23,16 @@ k=151;
 
 %Elliptic Fin Characteristics
 term = (0.0707-0.001)/2;
-rc = b/2; %Outside of cylinder
+rc = b/2; %Inside of cylinder
+r2=rc+thick; %Outside Radius of Cylinder 
 rb = 0.0705/2+term; %minor axis radius of fins
-N1=floor((s+0.0487)/(S+tf))+1; %stroke plus engine block
+N1=floor((s+0.0487)/(S+tf))+1; %stroke plus thickness of cylinder
 
 %Rectangular Fin Characteristics
 x = 0.06;
 L2 = 0.04922;
 L1 = 0.042;
 N2 = 2*floor(L1/(S+tf))+floor(L2/(S+tf)); %includes both sides of the cylinder
-
-r2=rc+thick; %Outside Radius of Fins 
-Ag=2*pi*s*b;
-
-Q=hflux*Ag;
-Rw=log(r2/rc)/(2*pi*s*k);
-
-Ts1=Tw-Q*Rw;
-Ts2=0;
-v = 3; %m/s
 
 if S/b >= 0.14
     K = 0.36;
@@ -47,30 +41,47 @@ else
     K = 0.62;
     B = 0.27;
 end
-Ts2 = 1000; %arbitrary
-while Ts2>Ts1
-    v = v+1;
-    hc = CoolingHTC(K,B,v,t,S); %Heat Transfer Coefficient between Fin and air
-    k = 151; %Thermal conductivity of fins, W/(m K)
-    m = sqrt(hc/(k*t));
-    ra = optimumFin(t,rb,rc,k,hc);
-    nfe = FinEffEll(ra,rb,rc,m);
-    nfr = FinEffRect(x,t,m);
-    Afe=EllipticArea(ra,rb,rc,N1);
-    Afr=RectArea(x,N2);
-    Ate=Afe+CylinArea(rc,S,N1);
-    Atr=Afr+SurfArea(S,N2);
-    Rfe=1/(nfe*hc*Afe);
-    Rfr=1/(nfr*hc*Afr);
-    Rte=1/(hc*(Ate-Afe));
-    Rtr=1/(hc*(Atr-Afr));
-    Rf=Rfe*Rfr/(Rfe+Rfr);
-    Re=Rte*Rfe/(Rte+Rfe);
-    Rr=Rtr*Rfr/(Rtr+Rfr);
-    R1=Re*Rr/(Re+Rr);
-    Ts2=Q*R1+To;
+N=800:100:9300;
+vreq = zeros(length(N),1);
+for i = 1:length(N)
+    rpm = N(i);
+    nv=volumetric_efficiency(rpm,0);
+    hflux=AverageTempAndH(nv,eq,rpm,0)*10^6; %W/m^2
+    Q=hflux*Ag;
+    Rw=log(r2/rc)/(2*pi*s*k);
+    Ts1=Tw-Q*Rw;
+
+    v = 3; %m/s
+    Ts2 = 1000; %arbitrary
+    while Ts2>Ts1
+        v = v+1;
+        hc = CoolingHTC(K,B,v,t,S); %Heat Transfer Coefficient between Fin and air
+        k = 151; %Thermal conductivity of fins, W/(m K)
+        m = sqrt(hc/(k*t));
+        ra = optimumFin(t,rb,r2,k,hc);
+        nfe = FinEffEll(ra,rb,r2,m);
+        nfr = FinEffRect(x,t,m);
+        Afe=EllipticArea(ra,rb,r2,N1);
+        Afr=RectArea(x,N2);
+        Ate=Afe+CylinArea(r2,S,N1);
+        Atr=Afr+SurfArea(S,N2);
+        Rfe=1/(nfe*hc*Afe);
+        Rfr=1/(nfr*hc*Afr);
+        Rte=1/(hc*(Ate-Afe));
+        Rtr=1/(hc*(Atr-Afr));
+        Rf=Rfe*Rfr/(Rfe+Rfr);
+        Re=Rte*Rfe/(Rte+Rfe);
+        Rr=Rtr*Rfr/(Rtr+Rfr);
+        R1=Re*Rr/(Re+Rr);
+        Ts2=Q*R1+To;
+    end
+    vreq(i) = v*2.237;
+    %fprintf("Required airspeed is %d mph. \n", v)
 end
-disp(v)
+plot(N,vreq)
+title("Required Air Velocity for Cooling vs RPM")
+xlabel("RPM")
+ylabel("Air Velocity, mph")
 
 function nf = FinEffEll(ra,rb,rc,m)
 %{

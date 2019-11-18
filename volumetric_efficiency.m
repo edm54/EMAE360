@@ -1,4 +1,4 @@
-function [V_eff] = volumetric_efficiency(N)
+function [V_eff] = volumetric_efficiency(N,plt)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -49,16 +49,16 @@ for i = 1:length(intake_lift)
         exhuast_lift(i) = 0;
     end
 end
-
-plot(theta, exhuast_lift*1000);
-hold on
-plot(theta,intake_lift*1000);
-title('Intake Valve Lift as a function of crank angle')
-xlabel('Crank Angle')
-ylabel('Lift (mm)')
-ylim([0,10]);
-legend('Exhuast valve lift','Intake valve lift')
-
+if plt > 0
+    plot(theta, exhuast_lift*1000);
+    hold on
+    plot(theta,intake_lift*1000);
+    title('Intake Valve Lift as a function of crank angle')
+    xlabel('Crank Angle')
+    ylabel('Lift (mm)')
+    ylim([0,10]);
+    legend('Exhuast valve lift','Intake valve lift')
+end
 %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 %saveas(gcf,'Valve Lift vs Crank.png')
     
@@ -123,17 +123,19 @@ for i = 1: length(exhuast_lift)
     
 end
 % Or flat at .8 percent 
-figure
-hold on 
+if plt > 0
+    figure
+    hold on 
 
-plot(theta,Am_in)
-plot(theta, Am_ex)
+    plot(theta,Am_in)
+    plot(theta, Am_ex)
 
-legend('Intake', 'Exhuast')
-title('Flow Area (m^2) as a Function of Crank Angle')
-legend('Intake Flow Area', 'Exhuast Flow Area')
-ylabel('Flow Area (M^2)')
-xlabel('Crank Angle')
+    legend('Intake', 'Exhuast')
+    title('Flow Area (m^2) as a Function of Crank Angle')
+    legend('Intake Flow Area', 'Exhuast Flow Area')
+    ylabel('Flow Area (M^2)')
+    xlabel('Crank Angle')
+end
 %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 %saveas(gcf,'Flow Area vs Crank.png')
 figure
@@ -146,10 +148,12 @@ lv_dv_ex = [.1 .15 .2 .25 .3 .35 .4];
 plot(lv_dv_ex, cd_ex);
 fit = polyfit(lv_dv_ex, cd_ex,  3);
 val = polyval(fit, .1:.01:.3);
-hold on
-plot(.1:.01:.3, val);
-ylim([0 1]);
-xlim([0 .3]);
+if plt>0
+    hold on
+    plot(.1:.01:.3, val);
+    ylim([0 1]);
+    xlim([0 .3]);
+end
 
 %% intake Cd vs lv/dv
 figure
@@ -168,20 +172,25 @@ c_4 = [.68 .55 .53 .48];
 
 fit1 = polyfit(l_in1, c_1,  2);
 val1 = polyval(fit1, .05:.01:.1);
-plot(.05:.01:.1, val1);
+if plt > 0
+    plot(.05:.01:.1, val1);
+end
 hold on
 fit2 = polyfit(l_in2, c_2,  1);
 val2 = polyval(fit2, l_in2);
-plot(l_in2, val2);
-
+if plt > 0
+    plot(l_in2, val2);
+end
 fit3 = polyfit(l_in3, c_3,  2);
 val3 = polyval(fit3, .11:.01:.18);
-plot(.11:.01:.18, val3);
-
+if plt>0
+    plot(.11:.01:.18, val3);
+end
 fit4 = polyfit(l_in4, c_4,  1);
 val4 = polyval(fit4, .18:.01:.35);
-plot(.18:.01:.35, val4);
-
+if plt>0
+    plot(.18:.01:.35, val4);
+end
 title('Intake Cd vs LV/DV')
 %%
 
@@ -207,14 +216,16 @@ for i = 1: length(intake_lift)
     end
     
 end 
-figure
-plot(theta, CD_in)
-hold on
-plot(theta, CD_ex)
-title('CD as a Function of Crank Angle')
-xlabel('Crank angle')
-ylabel("Discharge Coeff")
-legend('Intake', 'Exhuast')
+if plt > 0
+    figure
+    plot(theta, CD_in)
+    hold on
+    plot(theta, CD_ex)
+    title('CD as a Function of Crank Angle')
+    xlabel('Crank angle')
+    ylabel("Discharge Coeff")
+    legend('Intake', 'Exhaust')
+end
 %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
 %saveas(gcf,'CD vs Crank.png')
 
@@ -341,7 +352,7 @@ for j = 1 : length(N)
     ind = ind + 1;
     %m_dot * temp * dt + temp in * mass
 end
-
+if plt > 0
     figure
     hold on
     plot(N, V_eff)
@@ -374,6 +385,7 @@ end
     figure
     plot(theta(1:end-1), m_dot)
     title('M dot during exhuast as a function of crank angle')
+
     %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
     %saveas(gcf,'M dot vs Crank Angle.png')
 
@@ -419,13 +431,14 @@ end
  
  %%
  %N = 800:25:10000
-figure
-hold on
-plot(N, V_eff)
-plot(N, veff1)
-plot(N, veff2)
-grid 
-title('Volumetric Efficency vs RPM')
-legend('Exhuast', 'Intake', 'Total')
+    figure
+    hold on
+    plot(N, V_eff)
+    plot(N, veff1)
+    plot(N, veff2)
+    grid 
+    title('Volumetric Efficency vs RPM')
+    legend('Exhuast', 'Intake', 'Total')
+end
     %}
    

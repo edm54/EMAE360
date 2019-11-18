@@ -1,6 +1,6 @@
 %Returns the cumulative work for one cylinder in kJ, given a (volumetric
 %efficiency, equivalence ratio, RPM).
-function Wnet = FiniteHeatWoschni(Qin,N,ma,plt)
+function [Wnet, Tcomb] = FiniteHeatWoschni(Qin,N,ma,plt)
 
 %Motored Engine
 r = 10;
@@ -71,6 +71,7 @@ prop.press = prop.press.*P1/(10^3); %MPa
 work = P1.*V1 .* prop.work; %kJ
 heatloss = P1.*V1.*prop.heatloss; %kJ
 Wnet = work(NN);
+Tcomb = prop.temp(161);
 
 if plt>0
     thetai = 0;

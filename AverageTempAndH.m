@@ -1,6 +1,6 @@
 %Returns the cumulative work for one cylinder in kJ, given a (volumetric
 %efficiency, equivalence ratio, RPM).
-function AverageTempAndH(nv,eq,N)
+function qavg =  AverageTempAndH(nv,eq,N,plt)
 % Real Engine Cycle with Heat Transfer from the Cylinder
 step = 1; %crankangle interval for calculation
 r=10;
@@ -92,27 +92,29 @@ T_avg(:,1) = Tavg;
 qavg = (1/(720))*trapz(prop.heatflux);
 q_avg(:,1) = qavg;
 
-figure
-plot(prop.theta,prop.temp, prop.theta,T_avg)
-ylabel("Temperature, K")
-xlabel("Angle, degree")
-title("Temperature vs Crank Angle")
-legend("Instantaneous Temperature", "Average Temperature")
+if plt>0
+    figure
+    plot(prop.theta,prop.temp, prop.theta,T_avg)
+    ylabel("Temperature, K")
+    xlabel("Angle, degree")
+    title("Temperature vs Crank Angle")
+    legend("Instantaneous Temperature", "Average Temperature")
 
 
-figure
-plot(prop.theta,prop.heatflux,prop.theta,q_avg)
-ylabel("q'', MW/m^2")
-xlabel("Angle, degree")
-title("Heat Flux vs Crank Angle")
-legend("Instantaneous Heat Flux", "Average Heat Flux")
+    figure
+    plot(prop.theta,prop.heatflux,prop.theta,q_avg)
+    ylabel("q'', MW/m^2")
+    xlabel("Angle, degree")
+    title("Heat Flux vs Crank Angle")
+    legend("Instantaneous Heat Flux", "Average Heat Flux")
 
-figure
-plot(prop.theta,prop.htcoeff,prop.theta,h_avg)
-ylabel("hg, W/(m^2 K)")
-xlabel("Angle, degree")
-title("Gas side Heat transfer coefficient vs Crank Angle")
-legend("Instananeous hg", "Average hg")
+    figure
+    plot(prop.theta,prop.htcoeff,prop.theta,h_avg)
+    ylabel("hg, W/(m^2 K)")
+    xlabel("Angle, degree")
+    title("Gas side Heat transfer coefficient vs Crank Angle")
+    legend("Instananeous hg", "Average hg")
+end
 
     function [fy,ht,hflux,T] = integrate_ht(theta,thetae,fy)
         [ht,hflux,T] = values(theta,fy);

@@ -6,7 +6,7 @@
 function r1 = optimumFin(t,r2,rb,k,h)
     Bi = h*rb/k;
     r1 = 0;
-    r12 = r2+0.5;
+    r12 = r2+0.05;
     conv = abs(r1-r12);
     while conv > 0.001
         r1 = r12;
@@ -21,7 +21,6 @@ function r1 = optimumFin(t,r2,rb,k,h)
         R1=r1/rb;
         R2=r2/rb;
         U=(R1*R2-1)*zeta;
-
         fr=0.447*(U*Bi)^0.317*(U)^(0.22*R2)-zeta;
     end
 
@@ -32,10 +31,5 @@ function r1 = optimumFin(t,r2,rb,k,h)
         term1=0.447*0.317*(dU*Bi)*(U*Bi)^-0.683*U^(0.22*R);
         term2=0.447*0.22*R*dU*(U*Bi)^0.317*U^(0.22*R-1);
         dfr=term1+term2;
-        zeta=t/rb;
-        R1=r1/rb;
-        R2=r2/rb;
-        U=(R1*R2-1)*zeta;
-        dU=zeta*R2;
     end
 end
