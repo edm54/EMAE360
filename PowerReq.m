@@ -1,3 +1,5 @@
+%This function takes the cruise velocity in mph and outputs the required
+%power in hp. 
 function Preq = PowerReq(vmph)
 %Power Required at a certain Speed
 
