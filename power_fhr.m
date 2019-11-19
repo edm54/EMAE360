@@ -2,7 +2,8 @@
 %clear all
 % Requires a run of valve_lift before running for curves
 close all
-clear 
+%clear 
+P_hp1 = P_hp
 
 set(0, 'DefaultAxesFontWeight', 'normal', ...
       'DefaultAxesFontSize', 18, ...
@@ -30,7 +31,7 @@ f = 14.7; % air to fuel mass ratio
 
     figure
     %equivolence_ratio = 1.1
-    equivolence_ratio = 1.0
+    equivolence_ratio = 1.1
     % Equivolence Ratio * Ideal Air Fuel 
     fuel_air = 14.98/equivolence_ratio
 
@@ -110,21 +111,21 @@ f = 14.7; % air to fuel mass ratio
     % State 1, 
     rho(1) = p(1)/(R*T(1)); %from ideal gas law
     
-    N = 800 : 100 :15000
+    N = 800 : 100 :9400
     %N = 5000
-    Ma = zeros(length(N),1);
-    Mf = zeros(length(N),1);
-    Q = zeros(length(N),1);
-    net_work = zeros(length(N),1);
-    Wt = zeros(length(N),1);
-    Power = zeros(length(N),1);
-    efficiency = zeros(length(N),1);
-    imep = zeros(length(N),1);
-    bmep = zeros(length(N),1);
-    P_hp = zeros(length(N),1);
-    SFC = zeros(length(N),1);
-    SFC_Converted = zeros(length(N),1);
-    Torque = zeros(length(N),1);
+    Ma = zeros(1, length(N));
+    Mf = zeros(1, length(N));
+    Q = zeros(1, length(N));
+    net_work = zeros(1, length(N));
+    Wt = zeros(1, length(N));
+    Power = zeros(1,length(N));
+    efficiency = zeros(1,length(N));
+    imep = zeros(1,length(N));
+    bmep = zeros(1,length(N));
+    P_hp = zeros(1,length(N));
+    SFC = zeros(1,length(N));
+    SFC_Converted = zeros(1,length(N));
+    Torque = zeros(1,length(N));
     [Veff, pump_work] = volumetric_efficiency(N);
     i = 1;
     %for N = 800:100:10000
@@ -141,41 +142,48 @@ f = 14.7; % air to fuel mass ratio
     Ws = Cv*((T(3)-T(2)) - (T(4)-T(1)));
     power_needed = PowerReq(60) * 2
     velo1 = 60 * 1.61
+    cylinders = 4
     for i = 1:length(N)
+        if N(i) > 5000
+            cylinders = 6
+        end
+        
         efficiency(i) = 1;
         RPM = [2100 15000];
-        mech_eff = [ .9 .65];  
+        mech_eff = [ .9 .65];
+        
         if N(i)<= 2100
             mechanical_eff = .9;
         else
             mechanical_eff = interp1(RPM, mech_eff, N(i), 'linear');
         end
+        
         efficiency(i) = mechanical_eff;
          %Specific work per cylinder, J/kg
         %Ma(i) = Veff(i) * (D/C)*(rc/(rc-1)) * rho(1);
         power_loss_pump = (pump_work(i)/1000 * N(i)/120)/0.745699872   
-        
         %throttle_p(i) = throttle(N(i), power_needed/mechanical_eff + power_loss_pump, Veff(i), ma_ideal, fuel_air, Qconst,  mechanical_eff);
         throttle_p(i) = 1;
         Ma(i) = min(Veff(i), throttle_p(i)) *  ma_ideal;%Mass of Air in each cylinder, kg
         Mf(i) = Ma(i)/fuel_air;
         Q(i) = Mf(i) * Qconst;
         %PL(i) = PumpingLoss(Ma(i))
-        net_work(i) = 6 * (FiniteHeatWoschni(Q(i), N(i), Ma(i), 0)); %kJ   
+        net_work(i) = (FiniteHeatWoschni(Q(i), N(i), Ma(i), 0)); %kJ   
         velo(i) = interp1(velo_rpm, velocity_kmhr, N(i), 'linear');
         %velo1 = 60 * 1.61
         %W_loss(i) = drag_power(velo(i)) * 120 /N(i)
-        Wt(i) = efficiency(i) * net_work(i)/6  - pump_work(i)/1000
+        Wt(i) = efficiency(i) * net_work(i)  - pump_work(i)/1000;
         % divide by 120 sicne two cycles per ottocylce
-        Power(i) = 6 * Wt(i) * N(i)/120; % watts
+        
+        pl(i) =  1 - pump_work(i)/(1000 * net_work(i));
+        
+        Power(i) = cylinders * Wt(i) * N(i)/120; % watts
         P_rate(i) = .8 * Power(i); 
         
         imep(i) = Power(i)/1000*2*10^3/(D*1000*(N(i)/60));
         bmep(i) =  mechanical_eff*imep(i);
         %p_real(i) = ((P_total(i) - Pf(i))/(P_total(i))) * P_total(i)
-
         %P_hp(k,i) = P_total(i)/745.699872;
-
         Power_watts(i)=  Power(i);
         P_hp(i) = Power(i)/0.745699872;
         %P_hp(i) =  Power(i)/745.699872; %
@@ -188,6 +196,7 @@ f = 14.7; % air to fuel mass ratio
         fuel_eff(i) = 0;
         if N(i)>= velo_rpm(1) && N(i)<= velo_rpm(end)           
             % .9 because of transmission losses
+            velo1 = velocity_finder(P_hp(i))
             fuel_eff(i) = .9 * (velo1/(SFC_Converted(i) * (Power_watts(i)/1000))) * 2.35215; % to get to MPG
         end
         
@@ -197,12 +206,14 @@ figure
 
 disp(N)
 plot(N, P_hp)
-
-title('Power vs RPM, Redline Determination')
+hold on 
+%plot(N,P_hp1)
+title('Power with Cylinder Activation vs RPM')
 ylabel('Power (hp)')
 xlabel('RPM')
-xlim([0 12000])
-xline(9300, 'LineWidth',3)
+xlim([0 9300])
+%legend('6 Cylinder', '4 Cylinder')
+%xline(9300, 'LineWidth',3)
 
 %%
 figure 
@@ -265,7 +276,7 @@ ylabel('Velocity at Full Throttle (MPH)')
 legend('Fuel Efficiency', 'Velocity')
 
 %%
-power_loss_pump = (pump_work/1000 * N(i)/120)/0.745699872  
+power_loss_pump = (pump_work.'/1000 .* N/120)/0.745699872  
 figure
 hold on
 grid
