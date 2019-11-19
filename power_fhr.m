@@ -208,7 +208,7 @@ disp(N)
 plot(N, P_hp)
 hold on 
 %plot(N,P_hp1)
-title('Power with Cylinder Activation vs RPM')
+title('Power with Cylinder Deactivation vs RPM')
 ylabel('Power (hp)')
 xlabel('RPM')
 xlim([0 9300])

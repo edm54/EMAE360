@@ -1,4 +1,4 @@
-function [V_eff, pump_work] = volumetric_efficiency(N, P_ext_input)
+function [V_eff, pump_work] = volumetric_efficiency_p(N, P_ext_input)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -223,13 +223,14 @@ for j = 1 : length(N)
     P_external_e = 100000;
     P_external_in = 101325;
     P_atm = 101325;
-    P_external_in = P_ext_input;
+    P_external_in = P_ext_input(1);
     R = 287;
     Co = sqrt(gamma * R * To);
     P_cylinder_e = 6.6417e+05; 
     %P_cylinder_e = 4.6417e+05;% Pascals
     rho_cylinder = P_cylinder_e/(R * To); %Kg/m3
-    Ma = 3.335683867042752e-04; %Kg
+    Ma = (P_external_in/P_atm) * 3.335683867042752e-04;%Kg
+    %Ma = .8 * Ma
     time = (theta./360) .* (1/(N(j)/60)); %seconds
     for i = 1:length(theta)
         v(i) = calc_volume(theta(i));
