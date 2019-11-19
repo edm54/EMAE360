@@ -20,6 +20,7 @@ mech_eff = [ .9 .65];
 for i = 1:length(N)
     ma = 3.335e-4; %kg
     [nv,pump_work] = volumetric_efficiency(N(i));
+    close all
     ma = ma*nv;
     mf = ma/14.9;
     Qin = mf*combustionEff(1)*Qlhv/(p1*V1); 
@@ -34,7 +35,7 @@ for i = 1:length(N)
 
     Power(i) = 6 * Wt(i) * N(i)/120; % watts
     P_hp(i) = Power(i)/0.745699872;
-    vel(i) = velocity_finder(P_hp(i));
+    vel(i) = velocity_finder(P_hp(i)); %mph
 end
 for i = 1:length(N)
     nv = volumetric_efficiency(N(i));
@@ -44,7 +45,7 @@ for i = 1:length(N)
     af = 14.9;
     mt = ma+ma/af; %kg
     mt = mt * 1000; %g
-    v = vel(i);
+    v = vel(i)/2.237; %m/s
     mpkm = mt*(1/2)*(N(i)/60)*(1/v)*1000; %total mass of exhaust per km
     xco(i) = polyval(CO,N(i));
     xno(i) = polyval(NO,N(i));
@@ -52,11 +53,11 @@ for i = 1:length(N)
     no_mpkm(i) = xno(i)*mpkm*6;
 end
 
-ReqPerCO = 12 / max(co_mpkm);
-ReqPerNO = 0.8 / max(no_mpkm);
+ReqPerCO = 1 - 12 / max(co_mpkm);
+ReqPerNO = 1 - 0.8 / max(no_mpkm);
 
 plot(N,co_mpkm,N,no_mpkm)
-title("Emissions vs RPM, Stoichiometric")
+title(["Emissions vs RPM"; "Stoichiometric"; "Max Velocity (WOT)"])
 xlabel("RPM")
 ylabel("g of gas per km")
 legend("CO (g/km)", "NO+HC (g/km)", "Location", "northwest")
