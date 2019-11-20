@@ -2,10 +2,11 @@
 %efficiency, equivalence ratio, RPM).
 function qavg =  AverageTempAndH(nv,eq,N,plt)
 % Real Engine Cycle with Heat Transfer from the Cylinder
+nv = volumetric_efficiency(N);
 step = 1; %crankangle interval for calculation
 r=10;
 thetai = 0; %initial crankangle, rad
-thetaf =720; %final crankangle througout steps
+thetaf =361; %final crankangle througout steps
 NN = (thetaf - thetai)/step + 1;
 
 thetas = 160; %start of heat release (deg)
@@ -52,7 +53,7 @@ prop.temp(1) = T1; %initial temperature, K
 
 fy = [prop.press(1);0;0]; %Initial Pressure, Initial work, heat loss
 
-for i=1:721
+for i=1:360
     [prop.vol(i),~]=nondimV(prop.theta(i),r); 
 end
 
@@ -67,7 +68,7 @@ for i = 1:360
 end
 
 U = 6.18*Ubar;
-
+%{
 for i=360:1:540
    prop.temp(i)=prop.temp(360);
    prop.htcoeff(i) = heatTransferCoeff(prop.press(360)*P1,U,b,prop.temp(i));
@@ -79,7 +80,7 @@ for i=540:1:721
    prop.htcoeff(i)=heatTransferCoeff(101,U,b,300);
    prop.heatflux(i) = prop.htcoeff(i)*T1*(1*prop.vol(i) - Tbar)/10^6;
 end
-
+%}
 h_avg = zeros(NN,1);
 T_avg = zeros(NN,1);
 q_avg = zeros(NN,1);
@@ -94,7 +95,7 @@ q_avg(:,1) = qavg;
 
 if plt>0
     figure
-    plot(prop.theta,prop.temp, prop.theta,T_avg)
+    plot(prop.theta,prop.temp)
     ylabel("Temperature, K")
     xlabel("Angle, degree")
     title("Temperature vs Crank Angle")
@@ -114,6 +115,14 @@ if plt>0
     xlabel("Angle, degree")
     title("Gas side Heat transfer coefficient vs Crank Angle")
     legend("Instananeous hg", "Average hg")
+    
+    press = prop.press;
+    press = press .* 0.001 .* P1;
+    figure
+    plot(prop.theta, press)
+    xlabel("Angle, deg")
+    ylabel("Pressure, MPa")
+    title("Pressure vs Crank Angle")
 end
 
     function [fy,ht,hflux,T] = integrate_ht(theta,thetae,fy)

@@ -117,6 +117,7 @@ f = 14.7; % air to fuel mass ratio
     Q = zeros(length(N),1);
     net_work = zeros(length(N),1);
     Wt = zeros(length(N),1);
+    nt = zeros(length(N),1);
     Power = zeros(length(N),1);
     efficiency = zeros(length(N),1);
     imep = zeros(length(N),1);
@@ -165,7 +166,8 @@ f = 14.7; % air to fuel mass ratio
         velo(i) = interp1(velo_rpm, velocity_kmhr, N(i), 'linear');
         %velo1 = 60 * 1.61
         %W_loss(i) = drag_power(velo(i)) * 120 /N(i)
-        Wt(i) = efficiency(i) * net_work(i)/6  - pump_work(i)/1000
+        Wt(i) = efficiency(i) * net_work(i)/6  - pump_work(i)/1000;
+        nt(i) = Wt(i)*1000/(Q(i)*p(1)*V1);
         % divide by 120 sicne two cycles per ottocylce
         Power(i) = 6 * Wt(i) * N(i)/120; % watts
         P_rate(i) = .8 * Power(i); 
