@@ -1,4 +1,4 @@
-function [V_eff, pump_work] = volumetric_efficiency(N)
+function [V_eff, pump_work] = volumetric_efficiency_p(N, P_ext_input)
 %UNTITLED5 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -223,14 +223,14 @@ for j = 1 : length(N)
     P_external_e = 100000;
     P_external_in = 101325;
     P_atm = 101325;
-    %P_external_in = 50000;
+    P_external_in = P_ext_input(1);
     R = 287;
     Co = sqrt(gamma * R * To);
     P_cylinder_e = 6.6417e+05; 
     %P_cylinder_e = 4.6417e+05;% Pascals
     rho_cylinder = P_cylinder_e/(R * To); %Kg/m3
-    Ma = 3.335683867042752e-04; %Kg
-    
+    Ma = (P_external_in/P_atm) * 3.335683867042752e-04;%Kg
+    %Ma = .8 * Ma
     time = (theta./360) .* (1/(N(j)/60)); %seconds
     for i = 1:length(theta)
         v(i) = calc_volume(theta(i));
@@ -336,11 +336,9 @@ for j = 1 : length(N)
                 pump_work(ind) = pump_work(ind) +  (pressure(i)- P_external_e)*(abs(v(i+1)-v(i-1)))/2;
                 % pump_work(ind) = pump_work(ind) +  pressure(i)*(abs(v(i+1)-v(i)));
             elseif theta(i) >= 0 && theta(i) <= 180
-                pump_work(ind) = pump_work(ind) +  abs(pressure(i)-P_atm)*(abs(v(i+1)-v(i-1)))/2;
+                pump_work(ind) = pump_work(ind) +  abs(pressure(i)- P_atm)*(abs(v(i+1)-v(i-1)))/2;
             end
        end
-       
-       
     end
     % Calculate individual Volumetric Efficiencies
     veff2(ind) =  mass(end)/mass(1);
@@ -350,18 +348,18 @@ for j = 1 : length(N)
     ind = ind + 1;
     %m_dot * temp * dt + temp in * mass
 end
-    figure
-    hold on
-    plot(N, V_eff)
-    plot(N, veff1)
-    plot(N, veff2)
-    grid 
-    title('Volumetric Efficency vs RPM')
-    legend('Total', 'Exhuast', 'Intake')
-    xlabel('RPM')
-    ylabel('Volumetric Efficency')
-    
-%     disp(pump_work)
+%     figure
+%     hold on
+%     plot(N, V_eff)
+%     plot(N, veff1)
+%     plot(N, veff2)
+%     grid 
+%     title('Volumetric Efficency vs RPM')
+%     legend('Total', 'Exhuast', 'Intake')
+%     xlabel('RPM')
+%     ylabel('Volumetric Efficency')
+%     
+% %     disp(pump_work)
 %     disp(pressure(1))
 %     disp(v(1))
 %    disp(max(V_eff))
