@@ -17,7 +17,7 @@ for i = 1:length(N)
 end
 
 N = 5000;
-ma = 0.525 * 3.335e-4; %kg
+ma = 0.5 * 3.335e-4; %kg
 Qin = ma*combustionEff(1)*Qlhv/(p1*V1); 
 rho=ma/Vtdc;
 temp = Tcombust(Qin,N,ma,0);

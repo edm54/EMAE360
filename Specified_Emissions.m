@@ -27,7 +27,7 @@ legend("NOx, points", "CO, points", "NOx, curve fit", "CO, curve fit")
 hold off
 %}
 N = 3000;
-throttle = 0.525;
+throttle = 0.5;
 vel = 60; %mph
 
 ma = 0.0003335; %kg, per cylinder
@@ -41,12 +41,12 @@ mpkm = mt*(1/2)*(N/60)*(1/v)*1000; %total grams of exhaust per km
 %xno = polyval(NO,N); %Mass fraction at WOT
 %xco = 0.01328; %mass fraction at a throttle of 0.355
 %xno = 0.00267; %mass fraction at a throttle of 0.355
-xco = 0.0127;
-xno = 0.00236;
-co_mpkm = xco*mpkm*4;%times 6 to account for 6 cylinders
+xco = 0.032177; %mass fraction at a throttle of 0.5
+xno = 0.0079755; %mass fraction at a throttle of 0.5
+co_mpkm = xco*mpkm*4; %times 6 to account for 6 cylinders
 no_mpkm = xno*mpkm*4;
 
-
+ReqPerCO = 1 - 12 / max(co_mpkm);
 ReqPerNO60 = 1 - 0.8 / max(no_mpkm);
 
 

@@ -14,6 +14,7 @@ NO = polyfit(N1,X_1NO,1);
 
 N = 800:100:9300;
 [nv,~] = volumetric_efficiency(N);
+close all
 co_mpkm = zeros(length(N),1);
 no_mpkm = zeros(length(N),1);
 xco = zeros(length(N),1);
@@ -47,7 +48,7 @@ vel(:) = 60;
 throttle = 0.2:0.1:1;
 for i = 1:length(N)
     ma = 0.0003335; %kg, per cylinder
-    ma = ma*nv;
+    ma = ma*nv(i);
     af = 15.1;
     mt = ma+ma/af; %kg
     mt = mt * 1000; %g
@@ -63,7 +64,8 @@ ReqPerCO = 1 - 12 / max(co_mpkm);
 ReqPerNO = 1 - 0.8 / max(no_mpkm);
 
 plot(N,co_mpkm,N,no_mpkm)
-title("Emissions vs RPM at Max Velocity (WOT)")
+title("Emissions vs RPM at 30 mph (WOT)")
 xlabel("RPM")
 ylabel("g of gas per km")
 legend("CO (g/km)", "NO+HC (g/km)", "Location", "northwest")
+axis([800 4000 0 70])
