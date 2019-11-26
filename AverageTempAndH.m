@@ -52,7 +52,7 @@ prop.temp(1) = T1; %initial temperature, K
 
 fy = [prop.press(1);0;0]; %Initial Pressure, Initial work, heat loss
 
-for i=1:360
+for i=1:721
     [prop.vol(i),~]=nondimV(prop.theta(i),r); 
 end
 
@@ -92,7 +92,7 @@ q_avg(:,1) = qavg;
 
 if plt>0
     figure
-    plot(prop.theta,prop.temp)
+    plot(prop.theta,prop.temp,prop.theta,T_avg)
     ylabel("Temperature, K")
     xlabel("Angle, degree")
     title("Temperature vs Crank Angle")

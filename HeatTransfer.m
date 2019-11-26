@@ -1,5 +1,5 @@
 %{
-This program finds the required velocity for aircooling cylinders. From
+This program finds the required velocity for air-cooling cylinders. From
 this, the required power to accelerate this amount of air is calculated as
 well. 
 %}
@@ -21,17 +21,11 @@ S=0.003; %fin spacing
 k=151;
 
 %Elliptic Fin Characteristics
-term = (0.0707-0.001)/2;
+term = 0.0707/2;
 rc = b/2; %Inside of cylinder
 r2=rc+thick; %Outside Radius of Cylinder 
-rb = 0.0705/2+term; %minor axis radius of fins
+rb = r2+term; %minor axis radius of fins
 N1=floor((s+0.0487)/(S+tf))+1; %stroke plus thickness of cylinder
-
-%Rectangular Fin Characteristics
-x = 0.06;
-L2 = 0.04922;
-L1 = 0.042;
-N2 = 2*floor(L1/(S+tf))+floor(L2/(S+tf)); %includes both sides of the cylinder
 
 if S/b >= 0.14
     K = 0.36;
@@ -60,21 +54,15 @@ for i = 1:length(N)
         k = 151; %Thermal conductivity of fins, W/(m K)
         m = sqrt(hc/(k*t));
         ra = optimumFin(t,rb,r2,k,hc);
+        ra = 0.1201;
         nfe = FinEffEll(ra,rb,r2,m);
-        nfr = FinEffRect(x,t,m);
         Afe=EllipticArea(ra,rb,r2,N1);
-        Afr=RectArea(x,N2);
+%        Afe=2*N1*pi*(ra^2-r2^2);
         Ate=Afe+CylinArea(r2,S,N1);
-        Atr=Afr+SurfArea(S,N2);
         Rfe=1/(nfe*hc*Afe);
-        Rfr=1/(nfr*hc*Afr);
         Rte=1/(hc*(Ate-Afe));
-        Rtr=1/(hc*(Atr-Afr));
-        Rf=Rfe*Rfr/(Rfe+Rfr);
         Re=Rte*Rfe/(Rte+Rfe);
-        Rr=Rtr*Rfr/(Rtr+Rfr);
-        R1=Re*Rr/(Re+Rr);
-        Ts2=Q*R1+To;
+        Ts2=Q*Re+To;
     end
     vreq(i) = v*2.237;
     %fprintf("Required airspeed is %d mph. \n", v)
@@ -83,15 +71,19 @@ plot(N,vreq)
 title("Required Air Velocity for Cooling vs RPM")
 xlabel("RPM")
 ylabel("Air Velocity, mph")
+grid on
 
 function nf = FinEffEll(ra,rb,rc,m)
-%{
-    Bessel function variant for circular annular fins
-    term1 = 2*r1 / (m*(r2^2-r1^2));
-    term2 = besselk(1,m*r1)*besseli(1,m*r2)-besseli(1,m*r1)*besselk(1,m*r2);
-    term3 = besselk(0,m*r1)*besseli(1,m*r2)+besseli(0,m*r1)*besselk(1,m*r2);
+
+    %{
+    %Bessel function variant for circular annular fins
+    term1 = 2*rc / (m*(ra^2-rc^2));
+    term2 = besselk(1,m*rc)*besseli(1,m*ra)-besseli(1,m*rc)*besselk(1,m*ra);
+    term3 = besselk(0,m*rc)*besseli(1,m*ra)+besseli(0,m*rc)*besselk(1,m*ra);
     nf = term1*(term2/term3);
-%}
+    %}
+
+    %Elliptic Annular fin efficiency
     L=((ra-rc)+(rb-rc))/2;
     Rf=sqrt(ra*rb/rc^2);
     psi=1+0.17912*log(Rf);
