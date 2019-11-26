@@ -1,6 +1,6 @@
 %Returns the cumulative work for one cylinder in kJ, given a (volumetric
 %efficiency, equivalence ratio, RPM).
-function qavg =  AverageTempAndH(nv,eq,N,plt)
+function qavg =  AverageTempAndH(nv,eq,N,Tw,plt)
 % Real Engine Cycle with Heat Transfer from the Cylinder
 step = 1; %crankangle interval for calculation
 r=10;
@@ -23,7 +23,6 @@ V1 = r/(r-1)*Vd;
 Vo = V1/r; %Total volume at top dead center, m^3
 P1 = 101.325; %Initial Pressure, kPa
 T1 = 300; %K
-Tw = 530; %K, inside wall temperature
 Tbar = Tw / T1;
 Qlhv = 44000000; %J/kg
 nc = 0.95;

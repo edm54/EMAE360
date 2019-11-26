@@ -11,7 +11,7 @@ s = 0.0641; %m, stroke
 Ag=2*pi*s*b;
 thick = 0.017381; %m, cylinder thickness, confirm with team
 
-Tw=530; %K, a set value. 
+Tw=600; %K, a set value. 
 To=300; %K, atmospheric temperature
 
 %Fin characteristics 
@@ -25,7 +25,7 @@ term = 0.0707/2;
 rc = b/2; %Inside of cylinder
 r2=rc+thick; %Outside Radius of Cylinder 
 rb = r2+term; %minor axis radius of fins
-N1=floor((s+0.0487)/(S+tf))+1; %stroke plus thickness of cylinder
+N1=floor((0.12)/(S+tf))+1; %stroke plus thickness of cylinder
 
 if S/b >= 0.14
     K = 0.36;
@@ -41,7 +41,7 @@ vreq = zeros(length(N),1);
 hflux = zeros(length(N),1);
 for i = 1:length(N)
     rpm = N(i);
-    hflux(i)=AverageTempAndH(nv(i),eq,rpm,0)*10^6; %W/m^2
+    hflux(i)=AverageTempAndH(nv(i),eq,rpm,Tw,0)*10^6; %W/m^2
     Q=hflux(i)*Ag;
     Rw=log(r2/rc)/(2*pi*s*k);
     Ts1=Tw-Q*Rw;
@@ -49,12 +49,12 @@ for i = 1:length(N)
     v = 3; %m/s
     Ts2 = 1000; %arbitrary
     while Ts2>Ts1
-        v = v+0.01;
+        v = v+1;
         hc = CoolingHTC(K,B,v,t,S); %Heat Transfer Coefficient between Fin and air
         k = 151; %Thermal conductivity of fins, W/(m K)
         m = sqrt(hc/(k*t));
-        ra = optimumFin(t,rb,r2,k,hc);
-        ra = 0.1201;
+        %ra = optimumFin(t,rb,r2,k,hc);
+        ra =0.14;
         nfe = FinEffEll(ra,rb,r2,m);
         Afe=EllipticArea(ra,rb,r2,N1);
 %        Afe=2*N1*pi*(ra^2-r2^2);
