@@ -5,12 +5,11 @@ well.
 %}
 clear
 eq=1;
-N=9300;
 
 b = 0.0705; %m, bore
 s = 0.0641; %m, stroke
 Ag=2*pi*s*b;
-thick = 0.01; %m, cylinder thickness, confirm with team
+thick = 0.017381; %m, cylinder thickness, confirm with team
 
 Tw=530; %K, a set value. 
 To=300; %K, atmospheric temperature
@@ -42,19 +41,21 @@ else
     B = 0.27;
 end
 N=800:100:9300;
+nv = volumetric_efficiency(N);
+close all
 vreq = zeros(length(N),1);
+hflux = zeros(length(N),1);
 for i = 1:length(N)
     rpm = N(i);
-    nv=volumetric_efficiency(rpm,0);
-    hflux=AverageTempAndH(nv,eq,rpm,0)*10^6; %W/m^2
-    Q=hflux*Ag;
+    hflux(i)=AverageTempAndH(nv(i),eq,rpm,0)*10^6; %W/m^2
+    Q=hflux(i)*Ag;
     Rw=log(r2/rc)/(2*pi*s*k);
     Ts1=Tw-Q*Rw;
 
     v = 3; %m/s
     Ts2 = 1000; %arbitrary
     while Ts2>Ts1
-        v = v+1;
+        v = v+0.01;
         hc = CoolingHTC(K,B,v,t,S); %Heat Transfer Coefficient between Fin and air
         k = 151; %Thermal conductivity of fins, W/(m K)
         m = sqrt(hc/(k*t));

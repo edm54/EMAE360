@@ -2,11 +2,10 @@
 %efficiency, equivalence ratio, RPM).
 function qavg =  AverageTempAndH(nv,eq,N,plt)
 % Real Engine Cycle with Heat Transfer from the Cylinder
-nv = volumetric_efficiency(N);
 step = 1; %crankangle interval for calculation
 r=10;
 thetai = 0; %initial crankangle, rad
-thetaf =361; %final crankangle througout steps
+thetaf =721; %final crankangle througout steps
 NN = (thetaf - thetai)/step + 1;
 
 thetas = 160; %start of heat release (deg)
@@ -68,7 +67,6 @@ for i = 1:360
 end
 
 U = 6.18*Ubar;
-%{
 for i=360:1:540
    prop.temp(i)=prop.temp(360);
    prop.htcoeff(i) = heatTransferCoeff(prop.press(360)*P1,U,b,prop.temp(i));
@@ -80,7 +78,6 @@ for i=540:1:721
    prop.htcoeff(i)=heatTransferCoeff(101,U,b,300);
    prop.heatflux(i) = prop.htcoeff(i)*T1*(1*prop.vol(i) - Tbar)/10^6;
 end
-%}
 h_avg = zeros(NN,1);
 T_avg = zeros(NN,1);
 q_avg = zeros(NN,1);
