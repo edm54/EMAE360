@@ -29,10 +29,5 @@ while v_conv >0.001
     iter = iter+1;
 end
 v2 = v2*2.24; %mph
-
-disp('mph')
-disp(v2)
-
-
 end
 
